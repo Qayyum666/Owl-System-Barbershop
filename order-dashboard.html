@@ -1,0 +1,2158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barber Booking Dashboard - Appointment Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #ff9e00;
+            --danger-color: #f72585;
+            --processing-color: #7209b7;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+            --border-radius: 10px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 20px 0;
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header h2 i {
+            font-size: 1.8rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+        }
+
+        /* Header Styles */
+        header {
+            height: var(--header-height);
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 30px;
+            border: 1px solid #ddd;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .notification {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification i {
+            font-size: 1.3rem;
+            color: #666;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Content Area Styles */
+        .content-wrapper {
+            padding: 30px;
+        }
+
+        .page-title {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 2rem;
+            color: var(--dark-color);
+        }
+
+        /* Booking Stats Cards */
+        .booking-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .booking-stat-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .booking-stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .booking-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+        }
+
+        .booking-stat-card.total::before {
+            background-color: var(--primary-color);
+        }
+
+        .booking-stat-card.today::before {
+            background-color: var(--success-color);
+        }
+
+        .booking-stat-card.upcoming::before {
+            background-color: var(--processing-color);
+        }
+
+        .booking-stat-card.completed::before {
+            background-color: #1ea97c;
+        }
+
+        .booking-stat-card.cancelled::before {
+            background-color: var(--danger-color);
+        }
+
+        .booking-stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .booking-stat-icon.total {
+            background-color: var(--primary-color);
+        }
+
+        .booking-stat-icon.today {
+            background-color: var(--success-color);
+        }
+
+        .booking-stat-icon.upcoming {
+            background-color: var(--processing-color);
+        }
+
+        .booking-stat-icon.completed {
+            background-color: #1ea97c;
+        }
+
+        .booking-stat-icon.cancelled {
+            background-color: var(--danger-color);
+        }
+
+        .booking-stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .booking-stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Barber Performance */
+        .barber-performance {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+
+        .performance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .performance-header h3 {
+            font-size: 1.4rem;
+        }
+
+        .barber-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .barber-card {
+            border: 1px solid #eee;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .barber-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow);
+        }
+
+        .barber-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        .barber-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .barber-rating {
+            color: var(--warning-color);
+            margin-bottom: 10px;
+        }
+
+        .barber-bookings {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #2cb1d4;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+
+        /* Today's Schedule */
+        .today-schedule {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .schedule-header h3 {
+            font-size: 1.4rem;
+        }
+
+        .schedule-date {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .date-navigation {
+            display: flex;
+            gap: 10px;
+        }
+
+        .date-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .date-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .time-slot {
+            border: 1px solid #eee;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .time-slot.booked {
+            background-color: #e6f3ff;
+            border-color: var(--primary-color);
+        }
+
+        .time-slot.available {
+            background-color: #e7f7ef;
+            border-color: #1ea97c;
+        }
+
+        .time-slot.pending {
+            background-color: #fff5e6;
+            border-color: var(--warning-color);
+        }
+
+        .slot-time {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .slot-status {
+            font-size: 0.85rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .status-booked {
+            background-color: #dbeafe;
+            color: var(--primary-color);
+        }
+
+        .status-available {
+            background-color: #d1fae5;
+            color: #1ea97c;
+        }
+
+        .slot-customer {
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: #666;
+        }
+
+        /* Bookings Table */
+        .bookings-table-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-header h3 {
+            font-size: 1.3rem;
+        }
+
+        .table-filters {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            background-color: white;
+            outline: none;
+            min-width: 150px;
+        }
+
+        .date-filter {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-input {
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            outline: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .booking-id {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .customer-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .customer-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .customer-phone {
+            color: #777;
+            font-size: 0.85rem;
+        }
+
+        .service-list {
+            max-width: 200px;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .service-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .service-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 0.8rem;
+        }
+
+        .service-name {
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .barber-assigned {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .barber-avatar-small {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #fff5e6;
+            color: var(--warning-color);
+        }
+
+        .status-confirmed {
+            background-color: #d1fae5;
+            color: #1ea97c;
+        }
+
+        .status-in-progress {
+            background-color: #e0e7ff;
+            color: #6366f1;
+        }
+
+        .status-completed {
+            background-color: #e7f7ef;
+            color: #1ea97c;
+        }
+
+        .status-cancelled {
+            background-color: #ffe6e6;
+            color: var(--danger-color);
+        }
+
+        .status-no-show {
+            background-color: #f5f5f5;
+            color: #6b7280;
+        }
+
+        .payment-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .payment-paid {
+            background-color: #d1fae5;
+            color: #1ea97c;
+        }
+
+        .payment-pending {
+            background-color: #fff5e6;
+            color: var(--warning-color);
+        }
+
+        .payment-failed {
+            background-color: #ffe6e6;
+            color: var(--danger-color);
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-action.view {
+            background-color: #e6f3ff;
+            color: #2196f3;
+        }
+
+        .btn-action.edit {
+            background-color: #fff5e6;
+            color: var(--warning-color);
+        }
+
+        .btn-action.cancel {
+            background-color: #ffe6e6;
+            color: var(--danger-color);
+        }
+
+        .btn-action.checkin {
+            background-color: #d1fae5;
+            color: #1ea97c;
+        }
+
+        .btn-action:hover {
+            transform: scale(1.1);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pagination-btn:hover, .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Booking Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.4rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #777;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background-color: #f5f5f5;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .booking-detail-section {
+            margin-bottom: 25px;
+        }
+
+        .booking-detail-section h4 {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            color: var(--primary-color);
+        }
+
+        .booking-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .booking-info-item {
+            margin-bottom: 15px;
+        }
+
+        .booking-info-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .booking-info-value {
+            font-size: 1rem;
+        }
+
+        .booking-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .booking-items-table th {
+            background-color: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .booking-items-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-total {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .booking-summary {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .summary-total {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .search-box {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .booking-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .header-right {
+                gap: 15px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .table-filters {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .barber-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .time-slots {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .booking-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .content-wrapper {
+                padding: 20px;
+            }
+
+            .page-title h1 {
+                font-size: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .barber-list {
+                grid-template-columns: 1fr;
+            }
+
+            .time-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-cut"></i> Barber Shop</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="user-admin-dashboard.html"><i class="fas fa-users"></i> Clients</a></li>
+            <li><a href="order-dashboard.html" class="active"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+            <li><a href="barber-admin-dashboard.html"><i class="fas fa-box"></i> Barbers</a></li>
+            <li><a href="services-admin-dashboard.html"><i class="fas fa-scissors"></i> Services</a></li>
+            <li><a href="report-admin-dashboard.html"><i class="fas fa-chart-line"></i> Reports</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+        <header>
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchBookings" placeholder="Search bookings...">
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">5</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">BM</div>
+                    <div class="user-info">
+                        <h4>Booking Manager</h4>
+                        <p>Administrator</p>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="page-title">
+                <h1>Barber Booking Management</h1>
+                    <button class="btn btn-outline" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="booking-stats">
+                <div class="booking-stat-card total">
+                    <div class="booking-stat-icon total">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="booking-stat-info">
+                        <h3 id="totalBookings">0</h3>
+                        <p>Total Bookings</p>
+                    </div>
+                </div>
+                <div class="booking-stat-card today">
+                    <div class="booking-stat-icon today">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="booking-stat-info">
+                        <h3 id="todayBookings">0</h3>
+                        <p>Today's Bookings</p>
+                    </div>
+                </div>
+                <div class="booking-stat-card upcoming">
+                    <div class="booking-stat-icon upcoming">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="booking-stat-info">
+                        <h3 id="upcomingBookings">0</h3>
+                        <p>Upcoming</p>
+                    </div>
+                </div>
+                <div class="booking-stat-card completed">
+                    <div class="booking-stat-icon completed">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="booking-stat-info">
+                        <h3 id="completedBookings">0</h3>
+                        <p>Completed</p>
+                    </div>
+                </div>
+                <div class="booking-stat-card cancelled">
+                    <div class="booking-stat-icon cancelled">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="booking-stat-info">
+                        <h3 id="cancelledBookings">0</h3>
+                        <p>Cancelled</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="barber-performance">
+                <div class="performance-header">
+                    <h3>Barber Performance</h3>
+                    <select class="filter-select" id="barberFilter">
+                        <option value="all">All Barbers</option>
+                        <option value="john">John Barber</option>
+                        <option value="mike">Mike Styles</option>
+                        <option value="sam">Sam Clipper</option>
+                        <option value="tony">Tony Razor</option>
+                    </select>
+                </div>
+                <div class="barber-list" id="barberList"></div>
+            </div>
+
+            <div class="today-schedule">
+                <div class="schedule-header">
+                    <h3>Today's Schedule</h3>
+                    <div class="schedule-date">
+                        <div class="date-navigation">
+                            <button class="date-btn" id="prevDate">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span id="currentDate">Today</span>
+                            <button class="date-btn" id="nextDate">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <select class="filter-select" id="barberSchedule">
+                            <option value="all">All Barbers</option>
+                            <option value="john">John</option>
+                            <option value="mike">Mike</option>
+                            <option value="sam">Sam</option>
+                            <option value="tony">Tony</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="time-slots" id="timeSlots"></div>
+            </div>
+
+            <div class="bookings-table-container">
+                <div class="table-header">
+                    <h3>All Bookings</h3>
+                    <div class="table-filters">
+                        <select class="filter-select" id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="no-show">No Show</option>
+                        </select>
+                        <select class="filter-select" id="filterBarber">
+                            <option value="">All Barbers</option>
+                            <option value="john">John Barber</option>
+                            <option value="mike">Mike Styles</option>
+                            <option value="sam">Sam Clipper</option>
+                            <option value="tony">Tony Razor</option>
+                        </select>
+                        <div class="date-filter">
+                            <input type="date" class="date-input" id="startDate">
+                            <span>to</span>
+                            <input type="date" class="date-input" id="endDate">
+                        </div>
+                        <select class="filter-select" id="sortBookings">
+                            <option value="date-new">Newest First</option>
+                            <option value="date-old">Oldest First</option>
+                            <option value="time-early">Time (Early to Late)</option>
+                            <option value="time-late">Time (Late to Early)</option>
+                        </select>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Customer</th>
+                            <th>Services</th>
+                            <th>Barber</th>
+                            <th>Date & Time</th>
+                            <th>Duration</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTable"></tbody>
+                </table>
+                
+                <div class="pagination">
+                    <button class="pagination-btn prev" id="prevPage" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn">4</button>
+                    <button class="pagination-btn next" id="nextPage">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <footer>
+                <p>Barber Booking Management System &copy; 2023. All rights reserved.</p>
+            </footer>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Booking Details</h3>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="booking-detail-section">
+                    <h4>Booking Information</h4>
+                    <div class="booking-info-grid">
+                        <div class="booking-info-item">
+                            <div class="booking-info-label">Booking ID</div>
+                            <div class="booking-info-value" id="modalBookingId">#BBK-0000</div>
+                        </div>
+                        <div class="booking-info-item">
+                            <div class="booking-info-label">Booking Date & Time</div>
+                            <div class="booking-info-value" id="modalBookingDateTime">Date • Time</div>
+                        </div>
+                        <div class="booking-info-item">
+                            <div class="booking-info-label">Status</div>
+                            <div class="booking-info-value">
+                                <span class="status-badge status-confirmed" id="modalBookingStatus">Status</span>
+                            </div>
+                        </div>
+                        <div class="booking-info-item">
+                            <div class="booking-info-label">Payment Status</div>
+                            <div class="booking-info-value">
+                                <span class="payment-status payment-paid" id="modalPaymentStatus">Payment</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-detail-section">
+                    <h4>Customer Information</h4>
+                    <div class="booking-info-grid">
+                        <div class="booking-info-item">
+                            <div class="booking-info-label">Customer Name</div>
+                            <div class="booking-info-value" id="modalCustomerName">Name</div>
+                        </div>
+                        <div class="booking-info-item">
+                            <div class="booking-info-label">Phone</div>
+                            <div class="booking-info-value" id="modalCustomerPhone">Phone</div>
+                        </div>
+                        <div class="booking-info-item">
+                            <div class="booking-info-label">Email</div>
+                            <div class="booking-info-value" id="modalCustomerEmail">Email</div>
+                        </div>
+                        <div class="booking-info-item">
+                            <div class="booking-info-label">Notes</div>
+                            <div class="booking-info-value" id="modalCustomerNotes">Notes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-detail-section">
+                    <h4>Service Details</h4>
+                    <table class="booking-items-table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Barber</th>
+                                <th>Duration</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalBookingItems"></tbody>
+                    </table>
+                    
+                    <div class="booking-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="modalSubtotal">$0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (8%):</span>
+                            <span id="modalTax">$0.00</span>
+                        </div>
+                        <div class="summary-row summary-total">
+                            <span>Total:</span>
+                            <span id="modalTotal">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="sendReminderBtn">
+                    <i class="fas fa-bell"></i> Send Reminder
+                </button>
+                <button class="btn btn-warning" id="updateBookingBtn">
+                    <i class="fas fa-edit"></i> Update Status
+                </button>
+                <button class="btn btn-primary" id="checkInModalBtn">
+                    <i class="fas fa-user-check"></i> Check In
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DUMMY DATA ==========
+        const barbers = [
+            { id: "john", name: "John Barber", avatar: "JB", rating: 4.8, bookings: 45, color: "#4361ee" },
+            { id: "mike", name: "Mike Styles", avatar: "MS", rating: 4.9, bookings: 52, color: "#f72585" },
+            { id: "sam", name: "Sam Clipper", avatar: "SC", rating: 4.7, bookings: 38, color: "#4cc9f0" },
+            { id: "tony", name: "Tony Razor", avatar: "TR", rating: 4.6, bookings: 41, color: "#ff9e00" }
+        ];
+
+        const services = [
+            { id: "haircut", name: "Classic Haircut", duration: 30, price: 25 },
+            { id: "fade", name: "Fade Haircut", duration: 45, price: 35 },
+            { id: "beard", name: "Beard Trim", duration: 20, price: 15 },
+            { id: "shave", name: "Straight Razor Shave", duration: 30, price: 25 },
+            { id: "kids", name: "Kids Haircut", duration: 25, price: 20 },
+            { id: "treatment", name: "Hair Treatment", duration: 40, price: 45 },
+            { id: "design", name: "Hair Design", duration: 60, price: 50 }
+        ];
+
+        // Generate 20 dummy bookings
+        let bookings = [];
+        const customers = [
+            { name: "John Smith", phone: "+1 234 567 8901", email: "john@email.com", avatar: "JS", color: "#4361ee" },
+            { name: "Mike Johnson", phone: "+1 234 567 8902", email: "mike@email.com", avatar: "MJ", color: "#f72585" },
+            { name: "Sarah Williams", phone: "+1 234 567 8903", email: "sarah@email.com", avatar: "SW", color: "#4cc9f0" },
+            { name: "David Brown", phone: "+1 234 567 8904", email: "david@email.com", avatar: "DB", color: "#ff9e00" },
+            { name: "Lisa Davis", phone: "+1 234 567 8905", email: "lisa@email.com", avatar: "LD", color: "#7209b7" },
+            { name: "Robert Wilson", phone: "+1 234 567 8906", email: "robert@email.com", avatar: "RW", color: "#1ea97c" },
+            { name: "Emma Taylor", phone: "+1 234 567 8907", email: "emma@email.com", avatar: "ET", color: "#ff5722" },
+            { name: "James Anderson", phone: "+1 234 567 8908", email: "james@email.com", avatar: "JA", color: "#3f37c9" }
+        ];
+
+        const statuses = ["pending", "confirmed", "in-progress", "completed", "cancelled", "no-show"];
+        const payments = ["paid", "pending", "failed"];
+        
+        // Generate dates for the past 30 days and next 30 days
+        const today = new Date();
+        const dates = [];
+        for (let i = -15; i <= 15; i++) {
+            const date = new Date(today);
+            date.setDate(today.getDate() + i);
+            dates.push(date.toISOString().split('T')[0]);
+        }
+
+        // Generate 20 bookings
+        for (let i = 1; i <= 20; i++) {
+            const customer = customers[Math.floor(Math.random() * customers.length)];
+            const barber = barbers[Math.floor(Math.random() * barbers.length)];
+            const date = dates[Math.floor(Math.random() * dates.length)];
+            const hour = 9 + Math.floor(Math.random() * 9); // 9AM to 6PM
+            const minute = Math.random() > 0.5 ? "00" : "30";
+            const time = `${hour.toString().padStart(2, '0')}:${minute}`;
+            const status = statuses[Math.floor(Math.random() * statuses.length)];
+            const payment = payments[Math.floor(Math.random() * payments.length)];
+            
+            // Random services (1-3 services)
+            const numServices = 1 + Math.floor(Math.random() * 3);
+            const selectedServices = [];
+            let totalDuration = 0;
+            let totalAmount = 0;
+            
+            for (let j = 0; j < numServices; j++) {
+                const service = services[Math.floor(Math.random() * services.length)];
+                selectedServices.push({
+                    id: service.id,
+                    name: service.name,
+                    barber: barber.id,
+                    duration: service.duration,
+                    price: service.price
+                });
+                totalDuration += service.duration;
+                totalAmount += service.price;
+            }
+            
+            bookings.push({
+                id: `#BBK-${1000 + i}`,
+                customer: {
+                    name: customer.name,
+                    phone: customer.phone,
+                    email: customer.email,
+                    avatar: customer.avatar,
+                    color: customer.color
+                },
+                services: selectedServices,
+                barber: barber.id,
+                date: date,
+                time: time,
+                duration: totalDuration,
+                amount: totalAmount,
+                status: status,
+                payment: payment,
+                notes: `Customer note ${i}: ${Math.random() > 0.5 ? "Regular customer" : "First time customer"}`
+            });
+        }
+
+        // ========== STATE VARIABLES ==========
+        let currentPage = 1;
+        const bookingsPerPage = 5;
+        let filteredBookings = [...bookings];
+        let selectedDate = new Date();
+
+        // ========== DOM ELEMENTS ==========
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const searchBookings = document.getElementById('searchBookings');
+        const bookingsTable = document.getElementById('bookingsTable');
+        const bookingModal = document.getElementById('bookingModal');
+        const closeModal = document.getElementById('closeModal');
+        
+        // Stats elements
+        const totalBookings = document.getElementById('totalBookings');
+        const todayBookings = document.getElementById('todayBookings');
+        const upcomingBookings = document.getElementById('upcomingBookings');
+        const completedBookings = document.getElementById('completedBookings');
+        const cancelledBookings = document.getElementById('cancelledBookings');
+        
+        // Filter elements
+        const filterStatus = document.getElementById('filterStatus');
+        const filterBarber = document.getElementById('filterBarber');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const sortBookings = document.getElementById('sortBookings');
+        const barberFilter = document.getElementById('barberFilter');
+        const barberSchedule = document.getElementById('barberSchedule');
+        
+        // Pagination elements
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        
+        // Modal elements
+        const modalBookingId = document.getElementById('modalBookingId');
+        const modalBookingDateTime = document.getElementById('modalBookingDateTime');
+        const modalBookingStatus = document.getElementById('modalBookingStatus');
+        const modalPaymentStatus = document.getElementById('modalPaymentStatus');
+        const modalCustomerName = document.getElementById('modalCustomerName');
+        const modalCustomerPhone = document.getElementById('modalCustomerPhone');
+        const modalCustomerEmail = document.getElementById('modalCustomerEmail');
+        const modalCustomerNotes = document.getElementById('modalCustomerNotes');
+        const modalBookingItems = document.getElementById('modalBookingItems');
+        const modalSubtotal = document.getElementById('modalSubtotal');
+        const modalTax = document.getElementById('modalTax');
+        const modalTotal = document.getElementById('modalTotal');
+
+        // ========== HELPER FUNCTIONS ==========
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function formatTime(timeString) {
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        function formatStatus(status) {
+            const statusMap = {
+                'pending': 'Pending',
+                'confirmed': 'Confirmed',
+                'in-progress': 'In Progress',
+                'completed': 'Completed',
+                'cancelled': 'Cancelled',
+                'no-show': 'No Show'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getBarberName(barberId) {
+            const barber = barbers.find(b => b.id === barberId);
+            return barber ? barber.name : 'Unknown';
+        }
+
+        function getBarberColor(barberId) {
+            const barber = barbers.find(b => b.id === barberId);
+            return barber ? barber.color : '#4361ee';
+        }
+
+        function updateDateDisplay() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = selectedDate.toLocaleDateString('en-US', options);
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification-toast ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close"><i class="fas fa-times"></i></button>
+            `;
+            
+            // Add styles for notification
+            const style = document.createElement('style');
+            style.textContent = `
+                .notification-toast {
+                    position: fixed;
+                    top: 100px;
+                    right: 30px;
+                    background-color: white;
+                    border-radius: var(--border-radius);
+                    padding: 15px 20px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    min-width: 300px;
+                    z-index: 9999;
+                    animation: slideIn 0.3s ease forwards;
+                    border-left: 4px solid ${type === 'success' ? '#1ea97c' : type === 'error' ? '#f72585' : '#4361ee'};
+                }
+                
+                .notification-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                
+                .notification-content i {
+                    font-size: 1.2rem;
+                    color: ${type === 'success' ? '#1ea97c' : type === 'error' ? '#f72585' : '#4361ee'};
+                }
+                
+                .notification-close {
+                    background: none;
+                    border: none;
+                    color: #999;
+                    cursor: pointer;
+                    font-size: 1rem;
+                }
+                
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            
+            document.head.appendChild(style);
+            document.body.appendChild(notification);
+            
+            // Close notification on button click
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => {
+                    notification.remove();
+                    style.remove();
+                }, 300);
+            });
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        notification.remove();
+                        style.remove();
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // ========== FILTERING FUNCTIONS ==========
+        function applyFilters() {
+            console.log("Applying filters...");
+            
+            const searchTerm = searchBookings.value.toLowerCase();
+            const statusFilter = filterStatus.value;
+            const barberFilterValue = filterBarber.value;
+            const startDateFilter = startDate.value;
+            const endDateFilter = endDate.value;
+            const sortOption = sortBookings.value;
+            
+            // Start with all bookings
+            let result = [...bookings];
+            
+            // Apply search filter
+            if (searchTerm) {
+                result = result.filter(booking => {
+                    return booking.id.toLowerCase().includes(searchTerm) ||
+                           booking.customer.name.toLowerCase().includes(searchTerm) ||
+                           booking.customer.phone.includes(searchTerm);
+                });
+            }
+            
+            // Apply status filter
+            if (statusFilter) {
+                result = result.filter(booking => booking.status === statusFilter);
+            }
+            
+            // Apply barber filter
+            if (barberFilterValue) {
+                result = result.filter(booking => booking.barber === barberFilterValue);
+            }
+            
+            // Apply date filter
+            if (startDateFilter) {
+                result = result.filter(booking => booking.date >= startDateFilter);
+            }
+            if (endDateFilter) {
+                result = result.filter(booking => booking.date <= endDateFilter);
+            }
+            
+            // Apply sorting
+            result.sort((a, b) => {
+                switch(sortOption) {
+                    case 'date-new':
+                        if (a.date === b.date) {
+                            return a.time < b.time ? 1 : -1;
+                        }
+                        return a.date < b.date ? 1 : -1;
+                    case 'date-old':
+                        if (a.date === b.date) {
+                            return a.time > b.time ? 1 : -1;
+                        }
+                        return a.date > b.date ? 1 : -1;
+                    case 'time-early':
+                        if (a.time === b.time) {
+                            return a.date > b.date ? 1 : -1;
+                        }
+                        return a.time > b.time ? 1 : -1;
+                    case 'time-late':
+                        if (a.time === b.time) {
+                            return a.date < b.date ? 1 : -1;
+                        }
+                        return a.time < b.time ? 1 : -1;
+                    default:
+                        return 0;
+                }
+            });
+            
+            filteredBookings = result;
+            currentPage = 1;
+            updateBookingStats();
+            renderBookingsTable();
+        }
+
+        // ========== RENDER FUNCTIONS ==========
+        function renderBookingsTable() {
+            bookingsTable.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * bookingsPerPage;
+            const endIndex = startIndex + bookingsPerPage;
+            const bookingsToShow = filteredBookings.slice(startIndex, endIndex);
+            
+            if (bookingsToShow.length === 0) {
+                bookingsTable.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-calendar-times fa-2x" style="color: #ddd; margin-bottom: 15px;"></i>
+                            <p>No bookings found</p>
+                            <p style="font-size: 0.9rem; color: #777;">Try changing your filters</p>
+                        </td>
+                    </tr>
+                `;
+                updatePagination();
+                return;
+            }
+            
+            bookingsToShow.forEach(booking => {
+                const row = document.createElement('tr');
+                const bookingDateTime = `${formatDate(booking.date)} • ${formatTime(booking.time)}`;
+                const barber = getBarberName(booking.barber);
+                const barberAvatar = barbers.find(b => b.id === booking.barber)?.avatar || "BB";
+                const barberColor = getBarberColor(booking.barber);
+                
+                const serviceList = booking.services.map(service => `
+                    <div class="service-item">
+                        <div class="service-icon"><i class="fas fa-cut"></i></div>
+                        <div class="service-name">${service.name}</div>
+                    </div>
+                `).join('');
+                
+                row.innerHTML = `
+                    <td><span class="booking-id">${booking.id}</span></td>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-avatar" style="background-color: ${booking.customer.color}">${booking.customer.avatar}</div>
+                            <div class="customer-details">
+                                <div class="customer-name">${booking.customer.name}</div>
+                                <div class="customer-phone">${booking.customer.phone}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="service-list">${serviceList}</div>
+                    </td>
+                    <td>
+                        <div class="barber-assigned">
+                            <div class="barber-avatar-small" style="background-color: ${barberColor}">${barberAvatar}</div>
+                            <span>${barber}</span>
+                        </div>
+                    </td>
+                    <td>${bookingDateTime}</td>
+                    <td>${booking.duration} min</td>
+                    <td>$${booking.amount.toFixed(2)}</td>
+                    <td><span class="status-badge status-${booking.status}">${formatStatus(booking.status)}</span></td>
+                    <td><span class="payment-status payment-${booking.payment}">${booking.payment.charAt(0).toUpperCase() + booking.payment.slice(1)}</span></td>
+                    <td>
+                        <div class="action-buttons-cell">
+                            <button class="btn-action view" onclick="viewBooking('${booking.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-action edit" onclick="editBooking('${booking.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${booking.status !== 'cancelled' && booking.status !== 'completed' && booking.status !== 'no-show' ? 
+                            `<button class="btn-action cancel" onclick="cancelBooking('${booking.id}')">
+                                <i class="fas fa-times"></i>
+                            </button>` : ''}
+                            ${(booking.status === 'confirmed' || booking.status === 'pending') ? 
+                            `<button class="btn-action checkin" onclick="checkinBooking('${booking.id}')">
+                                <i class="fas fa-user-check"></i>
+                            </button>` : ''}
+                        </div>
+                    </td>
+                `;
+                bookingsTable.appendChild(row);
+            });
+            
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);
+            const paginationContainer = document.querySelector('.pagination');
+            
+            // Clear page buttons (keep prev/next)
+            document.querySelectorAll('.pagination-btn:not(.prev):not(.next)').forEach(btn => btn.remove());
+            
+            // Create page buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderBookingsTable();
+                };
+                nextPage.parentNode.insertBefore(btn, nextPage);
+            }
+            
+            // Update prev/next buttons
+            prevPage.disabled = currentPage === 1;
+            nextPage.disabled = currentPage === totalPages || totalPages === 0;
+            
+            prevPage.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderBookingsTable();
+                }
+            };
+            
+            nextPage.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderBookingsTable();
+                }
+            };
+        }
+
+        function updateBookingStats() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const today = bookings.filter(b => b.date === todayStr).length;
+            const upcoming = bookings.filter(b => b.date > todayStr).length;
+            const completed = bookings.filter(b => b.status === 'completed').length;
+            const cancelled = bookings.filter(b => b.status === 'cancelled' || b.status === 'no-show').length;
+            
+            totalBookings.textContent = bookings.length;
+            todayBookings.textContent = today;
+            upcomingBookings.textContent = upcoming;
+            completedBookings.textContent = completed;
+            cancelledBookings.textContent = cancelled;
+        }
+
+        function populateBarberList() {
+            const container = document.getElementById('barberList');
+            container.innerHTML = '';
+            
+            barbers.forEach(barber => {
+                const card = document.createElement('div');
+                card.className = 'barber-card';
+                card.innerHTML = `
+                    <div class="barber-avatar" style="background-color: ${barber.color}">${barber.avatar}</div>
+                    <div class="barber-name">${barber.name}</div>
+                    <div class="barber-rating">
+                        <i class="fas fa-star"></i> ${barber.rating}
+                    </div>
+                    <div class="barber-bookings">${barber.bookings} bookings</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function populateTimeSlots() {
+            const container = document.getElementById('timeSlots');
+            container.innerHTML = '';
+            
+            const selectedBarber = barberSchedule.value;
+            const dateStr = selectedDate.toISOString().split('T')[0];
+            
+            // Get bookings for this date and barber
+            const bookingsForDate = bookings.filter(b => 
+                b.date === dateStr && 
+                (selectedBarber === 'all' || b.barber === selectedBarber)
+            );
+            
+            // Create time slots
+            for (let hour = 9; hour <= 18; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    if (hour === 18 && minute === 30) break;
+                    
+                    const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                    const booking = bookingsForDate.find(b => b.time === time);
+                    
+                    const slot = document.createElement('div');
+                    slot.className = `time-slot ${booking ? 'booked' : 'available'}`;
+                    
+                    if (booking) {
+                        slot.innerHTML = `
+                            <div class="slot-time">${formatTime(time)}</div>
+                            <div class="slot-status status-booked">Booked</div>
+                            <div class="slot-customer">${booking.customer.name}</div>
+                            <div class="slot-customer">${getBarberName(booking.barber)}</div>
+                        `;
+                        slot.onclick = () => viewBooking(booking.id);
+                    } else {
+                        slot.innerHTML = `
+                            <div class="slot-time">${formatTime(time)}</div>
+                            <div class="slot-status status-available">Available</div>
+                            <div class="slot-customer">Click to book</div>
+                        `;
+                        slot.onclick = () => alert(`Book slot at ${formatTime(time)}`);
+                    }
+                    
+                    container.appendChild(slot);
+                }
+            }
+        }
+
+        // ========== BOOKING ACTIONS ==========
+        function viewBooking(bookingId) {
+            const booking = bookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            // Update modal content
+            modalBookingId.textContent = booking.id;
+            modalBookingDateTime.textContent = `${formatDate(booking.date)} • ${formatTime(booking.time)}`;
+            modalCustomerName.textContent = booking.customer.name;
+            modalCustomerPhone.textContent = booking.customer.phone;
+            modalCustomerEmail.textContent = booking.customer.email;
+            modalCustomerNotes.textContent = booking.notes;
+            
+            // Update status badges
+            modalBookingStatus.textContent = formatStatus(booking.status);
+            modalBookingStatus.className = `status-badge status-${booking.status}`;
+            
+            modalPaymentStatus.textContent = booking.payment.charAt(0).toUpperCase() + booking.payment.slice(1);
+            modalPaymentStatus.className = `payment-status payment-${booking.payment}`;
+            
+            // Update services
+            modalBookingItems.innerHTML = '';
+            let subtotal = 0;
+            
+            booking.services.forEach(service => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${service.name}</td>
+                    <td>${getBarberName(service.barber)}</td>
+                    <td>${service.duration} min</td>
+                    <td>$${service.price.toFixed(2)}</td>
+                    <td class="item-total">$${service.price.toFixed(2)}</td>
+                `;
+                modalBookingItems.appendChild(row);
+                subtotal += service.price;
+            });
+            
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+            
+            modalSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+            modalTax.textContent = `$${tax.toFixed(2)}`;
+            modalTotal.textContent = `$${total.toFixed(2)}`;
+            
+            // Show modal
+            bookingModal.classList.add('active');
+        }
+
+        function editBooking(bookingId) {
+            showNotification(`Editing booking ${bookingId}`, 'info');
+        }
+
+        function cancelBooking(bookingId) {
+            if (confirm(`Cancel booking ${bookingId}?`)) {
+                const booking = bookings.find(b => b.id === bookingId);
+                if (booking) {
+                    booking.status = 'cancelled';
+                    applyFilters();
+                    populateTimeSlots();
+                    showNotification('Booking cancelled successfully', 'success');
+                }
+            }
+        }
+
+        function checkinBooking(bookingId) {
+            const booking = bookings.find(b => b.id === bookingId);
+            if (booking) {
+                booking.status = 'in-progress';
+                applyFilters();
+                populateTimeSlots();
+                showNotification('Customer checked in successfully', 'success');
+            }
+        }
+
+        // ========== EVENT LISTENERS ==========
+        function setupEventListeners() {
+            // Menu toggle
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                mainContent.style.marginLeft = sidebar.classList.contains('active') ? '0' : 'var(--sidebar-width)';
+            });
+            
+            // Close modal
+            closeModal.addEventListener('click', () => {
+                bookingModal.classList.remove('active');
+            });
+            
+            bookingModal.addEventListener('click', (e) => {
+                if (e.target === bookingModal) {
+                    bookingModal.classList.remove('active');
+                }
+            });
+            
+            // Search input
+            searchBookings.addEventListener('input', applyFilters);
+            
+            // Filter changes
+            filterStatus.addEventListener('change', applyFilters);
+            filterBarber.addEventListener('change', applyFilters);
+            sortBookings.addEventListener('change', applyFilters);
+            
+            // Date filters
+            startDate.addEventListener('change', applyFilters);
+            endDate.addEventListener('change', applyFilters);
+            
+            // Date navigation
+            document.getElementById('prevDate').addEventListener('click', () => {
+                selectedDate.setDate(selectedDate.getDate() - 1);
+                updateDateDisplay();
+                populateTimeSlots();
+            });
+            
+            document.getElementById('nextDate').addEventListener('click', () => {
+                selectedDate.setDate(selectedDate.getDate() + 1);
+                updateDateDisplay();
+                populateTimeSlots();
+            });
+            
+            // Barber schedule filter
+            barberSchedule.addEventListener('change', populateTimeSlots);
+            
+            // Action buttons
+            document.getElementById('newBookingBtn').addEventListener('click', () => {
+                showNotification('New booking form would open here', 'info');
+            });
+            
+            document.getElementById('checkInBtn').addEventListener('click', () => {
+                showNotification('Check-in interface would open here', 'info');
+            });
+            
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                applyFilters();
+                showNotification('Data refreshed!', 'success');
+            });
+            
+            // Modal buttons
+            document.getElementById('sendReminderBtn').addEventListener('click', () => {
+                showNotification('Reminder sent!', 'success');
+            });
+            
+            document.getElementById('updateBookingBtn').addEventListener('click', () => {
+                showNotification('Update status form would open here', 'info');
+            });
+            
+            document.getElementById('checkInModalBtn').addEventListener('click', () => {
+                showNotification('Customer checked in!', 'success');
+                bookingModal.classList.remove('active');
+            });
+        }
+
+        // ========== INITIALIZATION ==========
+        function initializeDashboard() {
+            // Set default date values
+            const today = new Date();
+            const sevenDaysAgo = new Date(today);
+            sevenDaysAgo.setDate(today.getDate() - 7);
+            const thirtyDaysFromNow = new Date(today);
+            thirtyDaysFromNow.setDate(today.getDate() + 30);
+            
+            startDate.value = sevenDaysAgo.toISOString().split('T')[0];
+            endDate.value = thirtyDaysFromNow.toISOString().split('T')[0];
+            
+            // Initial setup
+            updateDateDisplay();
+            populateBarberList();
+            populateTimeSlots();
+            updateBookingStats();
+            applyFilters();
+            setupEventListeners();
+        }
+
+        // Start the dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+        
+        // Make functions available globally for onclick handlers
+        window.viewBooking = viewBooking;
+        window.editBooking = editBooking;
+        window.cancelBooking = cancelBooking;
+        window.checkinBooking = checkinBooking;
+    </script>
+</body>
+</html>

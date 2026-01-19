@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #ff9e00;
+            --danger-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+            --border-radius: 10px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 20px 0;
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header h2 i {
+            font-size: 1.8rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+        }
+
+        /* Header Styles */
+        header {
+            height: var(--header-height);
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: none;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Content Area Styles */
+        .content-wrapper {
+            padding: 30px;
+        }
+
+        .page-title {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 2rem;
+            color: var(--dark-color);
+        }
+
+        /* Period Selector */
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .period-btn {
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            border: 2px solid #ddd;
+            background-color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .period-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .period-btn:hover:not(.active) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .date-range-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-left: auto;
+        }
+
+        .date-input {
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            outline: none;
+        }
+
+        /* Report Stats Cards */
+        .report-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .report-stat-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+        }
+
+        .report-stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .report-stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .report-stat-icon.revenue {
+            background-color: var(--primary-color);
+        }
+
+        .report-stat-icon.bookings {
+            background-color: var(--success-color);
+        }
+
+        .report-stat-icon.customers {
+            background-color: var(--warning-color);
+        }
+
+        .report-stat-icon.average {
+            background-color: #7209b7;
+        }
+
+        .report-stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .report-stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .trend-up {
+            color: #1ea97c;
+        }
+
+        .trend-down {
+            color: var(--danger-color);
+        }
+
+        .trend-neutral {
+            color: #777;
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-header h3 {
+            font-size: 1.2rem;
+            color: var(--dark-color);
+        }
+
+        .chart-type-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-type-btn {
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .chart-type-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Report Tables */
+        .report-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .report-table-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h3 {
+            font-size: 1.2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 400px;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .progress-fill.high {
+            background-color: var(--primary-color);
+        }
+
+        .progress-fill.medium {
+            background-color: var(--success-color);
+        }
+
+        .progress-fill.low {
+            background-color: var(--warning-color);
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .summary-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .summary-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            color: var(--primary-color);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #2cb1d4;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Export Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.4rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #777;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background-color: #f5f5f5;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+        }
+
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .export-option {
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .export-option:hover {
+            border-color: var(--primary-color);
+            background-color: #f8f9ff;
+        }
+
+        .export-option.selected {
+            border-color: var(--primary-color);
+            background-color: #e6f3ff;
+        }
+
+        .export-option i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .export-option p {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .export-option span {
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .report-tables {
+                grid-template-columns: 1fr;
+            }
+
+            .date-range-selector {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .report-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-card {
+                padding: 20px;
+            }
+
+            .chart-wrapper {
+                height: 250px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .export-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .report-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .content-wrapper {
+                padding: 20px;
+            }
+
+            .page-title h1 {
+                font-size: 1.5rem;
+            }
+
+            .period-selector {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .period-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .date-range-selector {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-chart-line"></i> Reports</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="user-admin-dashboard.html"><i class="fas fa-users"></i> Clients</a></li>
+            <li><a href="order-dashboard.html"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+            <li><a href="barber-admin-dashboard.html"><i class="fas fa-user-tie"></i> Barbers</a></li>
+            <li><a href="services-admin-dashboard.html"><i class="fas fa-scissors"></i> Services</a></li>
+            <li><a href="report-admin-dashboard.html" class="active"><i class="fas fa-chart-line"></i> Reports</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="header-right">
+                <div class="user-profile">
+                    <div class="user-avatar">RA</div>
+                    <div class="user-info">
+                        <h4>Report Admin</h4>
+                        <p>Analytics</p>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Page Title -->
+            <div class="page-title">
+                <h1>Reports & Analytics</h1>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="exportReportBtn">
+                        <i class="fas fa-file-export"></i> Export Report
+                    </button>
+                    <button class="btn btn-success" id="refreshReportBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                    <button class="btn btn-outline" id="printReportBtn">
+                        <i class="fas fa-print"></i> Print Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Period Selector -->
+            <div class="period-selector">
+                <button class="period-btn active" data-period="today">Today</button>
+                <button class="period-btn" data-period="week">This Week</button>
+                <button class="period-btn" data-period="month">This Month</button>
+                <button class="period-btn" data-period="quarter">This Quarter</button>
+                <button class="period-btn" data-period="year">This Year</button>
+                <button class="period-btn" data-period="custom">Custom Range</button>
+                
+                <div class="date-range-selector" id="dateRangeSelector" style="display: none;">
+                    <input type="date" class="date-input" id="startDate" value="2023-10-01">
+                    <span>to</span>
+                    <input type="date" class="date-input" id="endDate" value="2023-10-31">
+                    <button class="btn btn-primary" id="applyDateRange">Apply</button>
+                </div>
+            </div>
+
+            <!-- Report Stats -->
+            <div class="report-stats">
+                <div class="report-stat-card">
+                    <div class="report-stat-icon revenue">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="report-stat-info">
+                        <h3 id="totalRevenue">$0</h3>
+                        <p>Total Revenue</p>
+                        <div class="trend-indicator trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12% from last period</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="report-stat-card">
+                    <div class="report-stat-icon bookings">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="report-stat-info">
+                        <h3 id="totalBookings">0</h3>
+                        <p>Total Bookings</p>
+                        <div class="trend-indicator trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>8% from last period</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="report-stat-card">
+                    <div class="report-stat-icon customers">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="report-stat-info">
+                        <h3 id="newCustomers">0</h3>
+                        <p>New Customers</p>
+                        <div class="trend-indicator trend-down">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>3% from last period</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="report-stat-card">
+                    <div class="report-stat-icon average">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="report-stat-info">
+                        <h3 id="avgBookingValue">$0</h3>
+                        <p>Avg. Booking Value</p>
+                        <div class="trend-indicator trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>5% from last period</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Container -->
+            <div class="charts-container">
+                <!-- Revenue Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Revenue Overview</h3>
+                        <div class="chart-type-selector">
+                            <button class="chart-type-btn active" data-chart="revenue" data-type="line">Line</button>
+                            <button class="chart-type-btn" data-chart="revenue" data-type="bar">Bar</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bookings Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Bookings Trend</h3>
+                        <div class="chart-type-selector">
+                            <button class="chart-type-btn active" data-chart="bookings" data-type="line">Line</button>
+                            <button class="chart-type-btn" data-chart="bookings" data-type="bar">Bar</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="bookingsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Service Distribution Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Service Distribution</h3>
+                        <div class="chart-type-selector">
+                            <button class="chart-type-btn active" data-chart="services" data-type="doughnut">Doughnut</button>
+                            <button class="chart-type-btn" data-chart="services" data-type="pie">Pie</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="servicesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Barber Performance Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Barber Performance</h3>
+                        <div class="chart-type-selector">
+                            <button class="chart-type-btn active" data-chart="barbers" data-type="bar">Bar</button>
+                            <button class="chart-type-btn" data-chart="barbers" data-type="horizontalBar">Horizontal</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="barbersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Tables -->
+            <div class="report-tables">
+                <!-- Top Services Table -->
+                <div class="report-table-container">
+                    <div class="table-header">
+                        <h3>Top Performing Services</h3>
+                        <span>By Revenue</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Bookings</th>
+                                <th>Revenue</th>
+                                <th>Popularity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topServicesTable">
+                            <!-- Top services will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Peak Hours Table -->
+                <div class="report-table-container">
+                    <div class="table-header">
+                        <h3>Peak Booking Hours</h3>
+                        <span>By Day</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Peak Hour</th>
+                                <th>Bookings</th>
+                                <th>Utilization</th>
+                            </tr>
+                        </thead>
+                        <tbody id="peakHoursTable">
+                            <!-- Peak hours will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <!-- Customer Summary -->
+                <div class="summary-card">
+                    <h3>Customer Summary</h3>
+                    <div class="summary-item">
+                        <span class="summary-label">New Customers</span>
+                        <span class="summary-value" id="newCustomersCount">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Returning Customers</span>
+                        <span class="summary-value" id="returningCustomersCount">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Repeat Rate</span>
+                        <span class="summary-value" id="repeatRate">0%</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Avg. Visits/Customer</span>
+                        <span class="summary-value" id="avgVisits">0.0</span>
+                    </div>
+                </div>
+
+                <!-- Booking Summary -->
+                <div class="summary-card">
+                    <h3>Booking Summary</h3>
+                    <div class="summary-item">
+                        <span class="summary-label">Confirmed</span>
+                        <span class="summary-value" id="confirmedBookings">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Completed</span>
+                        <span class="summary-value" id="completedBookings">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Cancelled</span>
+                        <span class="summary-value" id="cancelledBookings">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">No Shows</span>
+                        <span class="summary-value" id="noShowBookings">0</span>
+                    </div>
+                </div>
+
+                <!-- Financial Summary -->
+                <div class="summary-card">
+                    <h3>Financial Summary</h3>
+                    <div class="summary-item">
+                        <span class="summary-label">Gross Revenue</span>
+                        <span class="summary-value" id="grossRevenue">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Taxes (8%)</span>
+                        <span class="summary-value" id="taxAmount">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Net Revenue</span>
+                        <span class="summary-value" id="netRevenue">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Avg. Daily Revenue</span>
+                        <span class="summary-value" id="avgDailyRevenue">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer>
+                <p>Reports & Analytics Dashboard &copy; 2023. All rights reserved.</p>
+            </footer>
+        </div>
+    </main>
+
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Export Report</h3>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Export Format</label>
+                    <div class="export-options">
+                        <div class="export-option selected" data-format="pdf">
+                            <i class="fas fa-file-pdf"></i>
+                            <p>PDF</p>
+                            <span>Best for printing</span>
+                        </div>
+                        <div class="export-option" data-format="excel">
+                            <i class="fas fa-file-excel"></i>
+                            <p>Excel</p>
+                            <span>Best for data analysis</span>
+                        </div>
+                        <div class="export-option" data-format="csv">
+                            <i class="fas fa-file-csv"></i>
+                            <p>CSV</p>
+                            <span>Simple data format</span>
+                        </div>
+                        <div class="export-option" data-format="image">
+                            <i class="fas fa-file-image"></i>
+                            <p>Image</p>
+                            <span>Charts as images</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Date Range</label>
+                    <div class="form-row" style="display: flex; gap: 15px;">
+                        <input type="date" class="form-control" id="exportStartDate" value="2023-10-01">
+                        <input type="date" class="form-control" id="exportEndDate" value="2023-10-31">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Include Data</label>
+                    <div style="display: grid; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" checked> Revenue Charts
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" checked> Booking Statistics
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" checked> Service Performance
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" checked> Barber Performance
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox"> Raw Data Tables
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelExportBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmExportBtn">Export Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // DOM Elements
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const periodButtons = document.querySelectorAll('.period-btn');
+    const dateRangeSelector = document.getElementById('dateRangeSelector');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const applyDateRange = document.getElementById('applyDateRange');
+    const exportReportBtn = document.getElementById('exportReportBtn');
+    const refreshReportBtn = document.getElementById('refreshReportBtn');
+    const printReportBtn = document.getElementById('printReportBtn');
+    const exportModal = document.getElementById('exportModal');
+    const closeModal = document.getElementById('closeModal');
+    const cancelExportBtn = document.getElementById('cancelExportBtn');
+    const confirmExportBtn = document.getElementById('confirmExportBtn');
+    const exportOptions = document.querySelectorAll('.export-option');
+    
+    // Chart elements
+    const revenueChartCtx = document.getElementById('revenueChart');
+    const bookingsChartCtx = document.getElementById('bookingsChart');
+    const servicesChartCtx = document.getElementById('servicesChart');
+    const barbersChartCtx = document.getElementById('barbersChart');
+    
+    // Stat elements
+    const totalRevenue = document.getElementById('totalRevenue');
+    const totalBookings = document.getElementById('totalBookings');
+    const newCustomers = document.getElementById('newCustomers');
+    const avgBookingValue = document.getElementById('avgBookingValue');
+    
+    // Table elements
+    const topServicesTable = document.getElementById('topServicesTable');
+    const peakHoursTable = document.getElementById('peakHoursTable');
+    
+    // Summary elements
+    const newCustomersCount = document.getElementById('newCustomersCount');
+    const returningCustomersCount = document.getElementById('returningCustomersCount');
+    const repeatRate = document.getElementById('repeatRate');
+    const avgVisits = document.getElementById('avgVisits');
+    const confirmedBookings = document.getElementById('confirmedBookings');
+    const completedBookings = document.getElementById('completedBookings');
+    const cancelledBookings = document.getElementById('cancelledBookings');
+    const noShowBookings = document.getElementById('noShowBookings');
+    const grossRevenue = document.getElementById('grossRevenue');
+    const taxAmount = document.getElementById('taxAmount');
+    const netRevenue = document.getElementById('netRevenue');
+    const avgDailyRevenue = document.getElementById('avgDailyRevenue');
+
+    // Chart instances
+    let revenueChart = null;
+    let bookingsChart = null;
+    let servicesChart = null;
+    let barbersChart = null;
+
+    // Current period state
+    let currentPeriod = 'today';
+    let currentChartTypes = {
+        revenue: 'line',
+        bookings: 'line',
+        services: 'doughnut',
+        barbers: 'bar'
+    };
+
+    // Generate dummy data for different periods
+    function generateDummyData(period) {
+        const today = new Date();
+        let labels, revenueData, bookingsData;
+        
+        switch(period) {
+            case 'today':
+                labels = ['8AM', '10AM', '12PM', '2PM', '4PM', '6PM'];
+                revenueData = [320, 450, 520, 480, 380, 300];
+                bookingsData = [6, 8, 10, 9, 7, 2];
+                break;
+            case 'week':
+                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                revenueData = [2180, 2340, 2420, 2480, 2560, 2380, 1320];
+                bookingsData = [38, 40, 42, 43, 44, 41, 20];
+                break;
+            case 'month':
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                revenueData = [14800, 15600, 16200, 15850];
+                bookingsData = [258, 272, 280, 275];
+                break;
+            case 'year':
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                revenueData = [58000, 62000, 65000, 63000, 67000, 64000, 62000, 65000, 63000, 62000, 61000, 60500];
+                bookingsData = [1020, 1080, 1120, 1080, 1150, 1100, 1080, 1120, 1080, 1060, 1040, 1050];
+                break;
+            default:
+                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                revenueData = [2180, 2340, 2420, 2480, 2560, 2380, 1320];
+                bookingsData = [38, 40, 42, 43, 44, 41, 20];
+        }
+        
+        // Calculate totals
+        const totalRev = revenueData.reduce((a, b) => a + b, 0);
+        const totalBook = bookingsData.reduce((a, b) => a + b, 0);
+        
+        // Generate service data
+        const services = [
+            { name: 'Classic Haircut', bookings: Math.floor(totalBook * 0.42), revenue: Math.floor(totalRev * 0.36) },
+            { name: 'Fade Haircut', bookings: Math.floor(totalBook * 0.32), revenue: Math.floor(totalRev * 0.41) },
+            { name: 'Beard Trim', bookings: Math.floor(totalBook * 0.18), revenue: Math.floor(totalRev * 0.12) },
+            { name: 'Straight Razor', bookings: Math.floor(totalBook * 0.08), revenue: Math.floor(totalRev * 0.11) }
+        ];
+        
+        // Generate barber data
+        const barbers = [
+            { name: 'John Barber', bookings: Math.floor(totalBook * 0.28), revenue: Math.floor(totalRev * 0.27) },
+            { name: 'Mike Styles', bookings: Math.floor(totalBook * 0.32), revenue: Math.floor(totalRev * 0.34) },
+            { name: 'Sam Clipper', bookings: Math.floor(totalBook * 0.24), revenue: Math.floor(totalRev * 0.23) },
+            { name: 'Tony Razor', bookings: Math.floor(totalBook * 0.16), revenue: Math.floor(totalRev * 0.16) }
+        ];
+        
+        // Generate peak hours
+        const days = period === 'today' ? ['Today'] : 
+                    period === 'week' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] :
+                    ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'];
+        
+        const peakHours = days.map((day, index) => ({
+            day: day,
+            hour: `${9 + index}:00 ${index < 4 ? 'AM' : 'PM'}`,
+            bookings: Math.floor(totalBook * 0.2) + (index * 5),
+            utilization: `${65 + (index * 5)}%`
+        }));
+        
+        return {
+            revenue: totalRev,
+            bookings: totalBook,
+            newCustomers: Math.floor(totalBook * 0.17),
+            avgBooking: totalRev / totalBook,
+            labels: labels,
+            revenueData: revenueData,
+            bookingsData: bookingsData,
+            services: services,
+            barbers: barbers,
+            peakHours: peakHours
+        };
+    }
+
+    // Initialize Dashboard
+    function initReportDashboard() {
+        setupEventListeners();
+        setActiveMenuItem();
+        initializeCharts();
+        updateReportData();
+    }
+
+    // Setup Event Listeners
+    function setupEventListeners() {
+        // Sidebar toggle
+        menuToggle.addEventListener('click', toggleSidebar);
+        
+        // Period buttons
+        periodButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const period = button.dataset.period;
+                
+                // Update active button
+                periodButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Show/hide date range selector
+                if (period === 'custom') {
+                    dateRangeSelector.style.display = 'flex';
+                    currentPeriod = 'custom';
+                } else {
+                    dateRangeSelector.style.display = 'none';
+                    currentPeriod = period;
+                    updateReportData();
+                }
+            });
+        });
+        
+        // Apply date range
+        applyDateRange.addEventListener('click', () => {
+            currentPeriod = 'custom';
+            updateReportData();
+        });
+        
+        // Chart type buttons
+        document.querySelectorAll('.chart-type-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const chart = button.dataset.chart;
+                const type = button.dataset.type;
+                
+                // Update active button
+                document.querySelectorAll(`[data-chart="${chart}"]`).forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+                
+                // Update chart type
+                currentChartTypes[chart] = type;
+                updateChart(chart);
+            });
+        });
+        
+        // Action buttons
+        exportReportBtn.addEventListener('click', openExportModal);
+        refreshReportBtn.addEventListener('click', refreshData);
+        printReportBtn.addEventListener('click', printReport);
+        
+        // Export modal
+        closeModal.addEventListener('click', closeExportModal);
+        cancelExportBtn.addEventListener('click', closeExportModal);
+        confirmExportBtn.addEventListener('click', exportReport);
+        
+        // Export format options
+        exportOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                exportOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+        
+        // Close modal when clicking outside
+        exportModal.addEventListener('click', function(e) {
+            if (e.target === exportModal) {
+                closeExportModal();
+            }
+        });
+    }
+
+    // Toggle sidebar on mobile
+    function toggleSidebar() {
+        sidebar.classList.toggle('active');
+        if (sidebar.classList.contains('active')) {
+            mainContent.style.marginLeft = '0';
+        } else {
+            mainContent.style.marginLeft = 'var(--sidebar-width)';
+        }
+    }
+
+    // Initialize charts
+    function initializeCharts() {
+        const data = generateDummyData(currentPeriod);
+        
+        // Destroy existing charts if they exist
+        if (revenueChart) revenueChart.destroy();
+        if (bookingsChart) bookingsChart.destroy();
+        if (servicesChart) servicesChart.destroy();
+        if (barbersChart) barbersChart.destroy();
+        
+        // Revenue Chart
+        revenueChart = new Chart(revenueChartCtx, {
+            type: currentChartTypes.revenue,
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: data.revenueData,
+                    borderColor: '#4361ee',
+                    backgroundColor: currentChartTypes.revenue === 'bar' ? '#4361ee' : 'rgba(67, 97, 238, 0.1)',
+                    borderWidth: 2,
+                    fill: currentChartTypes.revenue === 'line',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `Revenue: $${context.parsed.y.toLocaleString()}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Bookings Chart
+        bookingsChart = new Chart(bookingsChartCtx, {
+            type: currentChartTypes.bookings,
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Bookings',
+                    data: data.bookingsData,
+                    borderColor: '#4cc9f0',
+                    backgroundColor: currentChartTypes.bookings === 'bar' ? '#4cc9f0' : 'rgba(76, 201, 240, 0.1)',
+                    borderWidth: 2,
+                    fill: currentChartTypes.bookings === 'line',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Services Chart
+        const serviceColors = ['#4361ee', '#f72585', '#4cc9f0', '#ff9e00', '#7209b7'];
+        servicesChart = new Chart(servicesChartCtx, {
+            type: currentChartTypes.services,
+            data: {
+                labels: data.services.map(s => s.name),
+                datasets: [{
+                    data: data.services.map(s => s.bookings),
+                    backgroundColor: serviceColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+        
+        // Barbers Chart
+        const barberColors1 = ['#4361ee', '#3f37c9', '#3a34b4', '#3631a0'];
+        const barberColors2 = ['#4cc9f0', '#2cb1d4', '#1ca9cc', '#0ca1c4'];
+        barbersChart = new Chart(barbersChartCtx, {
+            type: currentChartTypes.barbers,
+            data: {
+                labels: data.barbers.map(b => b.name),
+                datasets: [{
+                    label: 'Bookings',
+                    data: data.barbers.map(b => b.bookings),
+                    backgroundColor: barberColors1,
+                    borderColor: barberColors1.map(c => c.replace('0.8', '1')),
+                    borderWidth: 1
+                }, {
+                    label: 'Revenue ($)',
+                    data: data.barbers.map(b => b.revenue),
+                    backgroundColor: barberColors2,
+                    borderColor: barberColors2.map(c => c.replace('0.8', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Update report data based on selected period
+    function updateReportData() {
+        const data = generateDummyData(currentPeriod);
+        
+        // Update stats
+        totalRevenue.textContent = `$${data.revenue.toLocaleString()}`;
+        totalBookings.textContent = data.bookings.toLocaleString();
+        newCustomers.textContent = data.newCustomers.toLocaleString();
+        avgBookingValue.textContent = `$${data.avgBooking.toFixed(2)}`;
+        
+        // Update charts
+        updateAllCharts(data);
+        
+        // Update tables
+        updateTables(data);
+        
+        // Update summary
+        updateSummary(data);
+    }
+
+    // Update all charts
+    function updateAllCharts(data) {
+        updateChart('revenue', data);
+        updateChart('bookings', data);
+        updateChart('services', data);
+        updateChart('barbers', data);
+    }
+
+    // Update specific chart
+    function updateChart(chartName, data) {
+        if (!data) return;
+        
+        switch(chartName) {
+            case 'revenue':
+                revenueChart.data.labels = data.labels;
+                revenueChart.data.datasets[0].data = data.revenueData;
+                revenueChart.type = currentChartTypes.revenue;
+                revenueChart.data.datasets[0].backgroundColor = currentChartTypes.revenue === 'bar' ? '#4361ee' : 'rgba(67, 97, 238, 0.1)';
+                revenueChart.data.datasets[0].fill = currentChartTypes.revenue === 'line';
+                revenueChart.update();
+                break;
+                
+            case 'bookings':
+                bookingsChart.data.labels = data.labels;
+                bookingsChart.data.datasets[0].data = data.bookingsData;
+                bookingsChart.type = currentChartTypes.bookings;
+                bookingsChart.data.datasets[0].backgroundColor = currentChartTypes.bookings === 'bar' ? '#4cc9f0' : 'rgba(76, 201, 240, 0.1)';
+                bookingsChart.data.datasets[0].fill = currentChartTypes.bookings === 'line';
+                bookingsChart.update();
+                break;
+                
+            case 'services':
+                servicesChart.data.labels = data.services.map(s => s.name);
+                servicesChart.data.datasets[0].data = data.services.map(s => s.bookings);
+                servicesChart.type = currentChartTypes.services;
+                servicesChart.update();
+                break;
+                
+            case 'barbers':
+                barbersChart.data.labels = data.barbers.map(b => b.name);
+                barbersChart.data.datasets[0].data = data.barbers.map(b => b.bookings);
+                barbersChart.data.datasets[1].data = data.barbers.map(b => b.revenue);
+                barbersChart.type = currentChartTypes.barbers;
+                barbersChart.update();
+                break;
+        }
+    }
+
+    // Update tables
+    function updateTables(data) {
+        // Top Services Table
+        topServicesTable.innerHTML = '';
+        data.services.forEach(service => {
+            const row = document.createElement('tr');
+            const percentage = (service.bookings / data.bookings * 100).toFixed(1);
+            let progressClass = 'low';
+            if (percentage > 30) progressClass = 'high';
+            else if (percentage > 15) progressClass = 'medium';
+            
+            row.innerHTML = `
+                <td>${service.name}</td>
+                <td>${service.bookings}</td>
+                <td>$${service.revenue.toLocaleString()}</td>
+                <td>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${progressClass}" style="width: ${percentage}%"></div>
+                    </div>
+                    <span style="font-size: 0.85rem; color: #777;">${percentage}%</span>
+                </td>
+            `;
+            topServicesTable.appendChild(row);
+        });
+        
+        // Peak Hours Table
+        peakHoursTable.innerHTML = '';
+        data.peakHours.forEach(hour => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${hour.day}</td>
+                <td>${hour.hour}</td>
+                <td>${hour.bookings}</td>
+                <td>${hour.utilization}</td>
+            `;
+            peakHoursTable.appendChild(row);
+        });
+    }
+
+    // Update summary
+    function updateSummary(data) {
+        // Customer Summary
+        const totalCustomers = data.newCustomers * 4;
+        const returningCustomers = totalCustomers - data.newCustomers;
+        const repeatRateValue = totalCustomers > 0 ? (returningCustomers / totalCustomers * 100).toFixed(1) : 0;
+        
+        newCustomersCount.textContent = data.newCustomers.toLocaleString();
+        returningCustomersCount.textContent = returningCustomers.toLocaleString();
+        repeatRate.textContent = `${repeatRateValue}%`;
+        avgVisits.textContent = '2.4';
+        
+        // Booking Summary
+        confirmedBookings.textContent = Math.floor(data.bookings * 0.95).toLocaleString();
+        completedBookings.textContent = Math.floor(data.bookings * 0.88).toLocaleString();
+        cancelledBookings.textContent = Math.floor(data.bookings * 0.07).toLocaleString();
+        noShowBookings.textContent = Math.floor(data.bookings * 0.05).toLocaleString();
+        
+        // Financial Summary
+        const gross = data.revenue;
+        const tax = gross * 0.08;
+        const net = gross - tax;
+        const daysInPeriod = currentPeriod === 'today' ? 1 : 
+                           currentPeriod === 'week' ? 7 : 
+                           currentPeriod === 'month' ? 30 : 365;
+        const avgDaily = gross / daysInPeriod;
+        
+        grossRevenue.textContent = `$${gross.toLocaleString()}`;
+        taxAmount.textContent = `$${tax.toFixed(2)}`;
+        netRevenue.textContent = `$${net.toLocaleString()}`;
+        avgDailyRevenue.textContent = `$${avgDaily.toFixed(2)}`;
+    }
+
+    // Open export modal
+    function openExportModal() {
+        exportModal.classList.add('active');
+    }
+
+    // Close export modal
+    function closeExportModal() {
+        exportModal.classList.remove('active');
+    }
+
+    // Export report
+    function exportReport() {
+        const selectedFormat = document.querySelector('.export-option.selected').dataset.format;
+        showNotification(`Exporting report as ${selectedFormat.toUpperCase()}...`, 'info');
+        
+        setTimeout(() => {
+            showNotification(`Report exported successfully as ${selectedFormat.toUpperCase()}`, 'success');
+            closeExportModal();
+        }, 1500);
+    }
+
+    // Refresh data
+    function refreshData() {
+        // Show loading state
+        refreshReportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        refreshReportBtn.disabled = true;
+        
+        // Simulate API call delay
+        setTimeout(() => {
+            updateReportData();
+            
+            // Restore button state
+            refreshReportBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
+            refreshReportBtn.disabled = false;
+            
+            showNotification('Report data refreshed successfully', 'success');
+        }, 1000);
+    }
+
+    // Print report
+    function printReport() {
+        showNotification('Preparing report for printing...', 'info');
+        
+        setTimeout(() => {
+            window.print();
+            showNotification('Print dialog opened', 'success');
+        }, 1000);
+    }
+
+    // Set active menu item
+    function setActiveMenuItem() {
+        const menuItems = document.querySelectorAll('.sidebar-menu a');
+        menuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                menuItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification-toast ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="notification-close"><i class="fas fa-times"></i></button>
+        `;
+        
+        // Add styles for notification
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification-toast {
+                position: fixed;
+                top: 100px;
+                right: 30px;
+                background-color: white;
+                border-radius: var(--border-radius);
+                padding: 15px 20px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                min-width: 300px;
+                z-index: 9999;
+                animation: slideIn 0.3s ease forwards;
+                border-left: 4px solid ${type === 'success' ? '#1ea97c' : type === 'error' ? '#f72585' : '#4361ee'};
+            }
+            
+            .notification-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .notification-content i {
+                font-size: 1.2rem;
+                color: ${type === 'success' ? '#1ea97c' : type === 'error' ? '#f72585' : '#4361ee'};
+            }
+            
+            .notification-close {
+                background: none;
+                border: none;
+                color: #999;
+                cursor: pointer;
+                font-size: 1rem;
+            }
+            
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        
+        document.head.appendChild(style);
+        document.body.appendChild(notification);
+        
+        // Close notification on button click
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 300);
+        });
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => {
+                    notification.remove();
+                    style.remove();
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    // Initialize dashboard when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initReportDashboard);
+</script>
+</body>
+</html>
