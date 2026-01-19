@@ -93,64 +93,110 @@
     .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ddd; background: white; cursor: pointer; font-weight: bold; }
     .qty-btn:hover { background: var(--light-gray); }
 
-    /* Footer */
-    <footer class="footer">
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <h3><i class="fas fa-cut"></i> Owl Barbershop</h3>
-                <p>Providing premium grooming services and high-quality products to help you maintain your perfect style every day.</p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp"></i></a>
-                </div>
-            </div>
+    /* ===== UPDATED FOOTER STYLES ===== */
+.footer {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 60px 0 20px;
+    margin-top: 50px;
+    text-align: left; /* Reset from center to match index */
+}
 
-            <div class="footer-col">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="services.html">Our Services</a></li>
-                    <li><a href="product.html">Grooming Products</a></li>
-                    <li><a href="bookings.html">Book Appointment</a></li>
-                </ul>
-            </div>
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
 
-            <div class="footer-col">
-                <h4>Contact Us</h4>
-                <ul class="contact-info">
-                    <li>
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>123 Jalan Arab, Muar, 84000 Johor, Malaysia</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-phone"></i>
-                        <span>+60 6-123 4567</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-envelope"></i>
-                        <span>info@owlbarbershop.com</span>
-                    </li>
-                </ul>
-            </div>
+.footer-col h3,
+.footer-col h4 {
+    color: white;
+    margin-bottom: 20px;
+}
 
-            <div class="footer-col">
-                <h4>Opening Hours</h4>
-                <ul>
-                    <li><span style="display: flex; justify-content: space-between;"><span>Mon - Fri:</span> <span>10am - 9pm</span></span></li>
-                    <li><span style="display: flex; justify-content: space-between;"><span>Saturday:</span> <span>10am - 10pm</span></span></li>
-                    <li><span style="display: flex; justify-content: space-between;"><span>Sunday:</span> <span>11am - 8pm</span></span></li>
-                </ul>
-            </div>
-        </div>
+.footer-col h3 i {
+    color: var(--secondary-color);
+    margin-right: 10px;
+}
 
-        <div class="footer-bottom">
-            <p>&copy; 2023 Owl Barbershop. All Rights Reserved.</p>
-        </div>
-    </div>
-</footer>
+.footer-col p {
+    color: #bdc3c7;
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 10px;
+}
+
+.footer-col ul li a {
+    color: #bdc3c7;
+    text-decoration: none;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+}
+
+.footer-col ul li a:hover {
+    color: var(--secondary-color);
+    padding-left: 5px;
+}
+
+.footer-col ul li i {
+    margin-right: 10px;
+    color: var(--secondary-color);
+    width: 20px;
+}
+
+.contact-info li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.social-links a:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #bdc3c7;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+}
     /* Common Buttons */
     .btn { display: block; width: 100%; padding: 12px; border-radius: var(--border-radius); text-align: center; text-decoration: none; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; }
     .btn-primary { background-color: var(--secondary-color); color: white; }
@@ -208,11 +254,63 @@
         <i class="fas fa-shopping-cart"></i> Check Cart (<span id="cartCount">0</span>)
     </button>
 
-    <footer class="main-footer">
-        <div class="container">
-            <p>&copy; 2023 Owl Barbershop. Professional Grooming Excellence.</p>
+    <footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3><i class="fas fa-cut"></i> Owl Barbershop</h3>
+                <p>Providing premium grooming services and high-quality products to help you maintain your perfect style every day.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Our Services</a></li>
+                    <li><a href="product.html">Grooming Products</a></li>
+                    <li><a href="bookings.html">Book Appointment</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <ul class="contact-info">
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>123 Jalan Arab, Muar, 84000 Johor, Malaysia</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <span>+60 6-123 4567</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <span>info@owlbarbershop.com</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Opening Hours</h4>
+                <ul>
+                    <li><span style="display: flex; justify-content: space-between;"><span>Mon - Fri:</span> <span>10am - 9pm</span></span></li>
+                    <li><span style="display: flex; justify-content: space-between;"><span>Saturday:</span> <span>10am - 10pm</span></span></li>
+                    <li><span style="display: flex; justify-content: space-between;"><span>Sunday:</span> <span>11am - 8pm</span></span></li>
+                </ul>
+            </div>
         </div>
-    </footer>
+
+        <div class="footer-bottom">
+            <p>&copy; 2023 Owl Barbershop. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
 
     <div id="cartModal" class="modal">
         <div class="modal-content">
