@@ -528,7 +528,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="dropdown-content">
-                            <a href="dashboard.html">Dashboard</a>
+                            <a href="javascript:void(0)" onclick="showDashboardModal()">Dashboard</a>
                             <a href="profile.html">Profile</a>
                             <a href="my-bookings.html">My Bookings</a>
                             <a href="#" id="logoutBtn">Logout</a>
@@ -1111,6 +1111,94 @@
                 window.location.href = 'index.html';
             }
         }
+        <div id="dashboardModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>User Dashboard</h3>
+                <button class="btn-icon" onclick="closeDashboardModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <i class="fas fa-user-circle" style="font-size: 60px; color: var(--secondary-color);"></i>
+                    <h4 id="modalUserName" style="margin-top: 10px;">User Name</h4>
+                    <p id="modalUserEmail" style="color: var(--gray-color);">user@example.com</p>
+                </div>
+                <div class="nav-links" style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                    <a href="profile.html" class="btn btn-outline" style="text-align: left; width: 100%;">
+                        <i class="fas fa-id-card"></i> Edit Profile
+                    </a>
+                    <a href="my-bookings.html" class="btn btn-outline" style="text-align: left; width: 100%;">
+                        <i class="fas fa-calendar-check"></i> My Appointments
+                    </a>
+                    <button id="modalLogoutBtn" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-sign-out-alt"></i> Logout Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+        // --- Dashboard Modal Functions ---
+        function showDashboardModal() {
+            const modal = document.getElementById('dashboardModal');
+            const nameEl = document.getElementById('modalUserName');
+            const emailEl = document.getElementById('modalUserEmail');
+
+            // Fill popup with current user data from localStorage
+            if (currentUser) {
+                nameEl.textContent = currentUser.full_name || 'User';
+                emailEl.textContent = currentUser.email || '';
+            }
+
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Stop background scroll
+        }
+
+        function closeDashboardModal() {
+            document.getElementById('dashboardModal').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Enable background scroll
+        }
+
+        // Close when clicking outside the box
+        window.addEventListener('click', function(event) {
+            const dashModal = document.getElementById('dashboardModal');
+            const detailModal = document.getElementById('bookingModal');
+            if (event.target == dashModal) closeDashboardModal();
+            if (event.target == detailModal) closeModal();
+        });
+
+        // Logout logic for the modal button
+        document.getElementById('modalLogoutBtn').addEventListener('click', function() {
+            if(confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem('owl_user');
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // --- Existing Modal Functions (for Booking Details) ---
+        function viewBookingDetails(id) {
+            const booking = allBookings.find(b => b.id === id);
+            if (!booking) return;
+            
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="padding: 10px;">
+                    <p><strong>Booking ID:</strong> ${booking.id}</p>
+                    <p><strong>Service:</strong> ${booking.service}</p>
+                    <p><strong>Barber:</strong> ${booking.barber}</p>
+                    <p><strong>Date:</strong> ${booking.date}</p>
+                    <p><strong>Time:</strong> ${booking.time}</p>
+                    <hr style="margin: 15px 0;">
+                    <p><strong>Total Amount:</strong> RM ${booking.amount.toFixed(2)}</p>
+                    <p><strong>Status:</strong> ${booking.status.toUpperCase()}</p>
+                </div>
+            `;
+            document.getElementById('bookingModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+        }
     </script>
 </body>
 </html>
+
