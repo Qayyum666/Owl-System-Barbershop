@@ -414,18 +414,15 @@
             modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
         }
 
-        function viewReceipt() {
-            if (Object.keys(cart).length === 0) return alert("Your cart is empty!");
-            
-            let receipt = "--- OWL BARBERSHOP RECEIPT ---\n\n";
-            let total = 0;
-            Object.values(cart).forEach(item => {
-                receipt += `${item.name} x${item.qty}: RM ${(item.price * item.qty).toFixed(2)}\n`;
-                total += item.price * item.qty;
-            });
-            receipt += `\n-----------------------------\nTOTAL: RM ${total.toFixed(2)}\n\nThank you for your purchase!`;
-            alert(receipt);
-        }
+function viewReceipt() {
+    if (Object.keys(cart).length === 0) return alert("Your cart is empty!");
+    
+    // Save cart data to LocalStorage to pass it to the receipt page
+    localStorage.setItem('owlCart', JSON.stringify(cart));
+    
+    // Redirect to the new receipt page
+    window.location.href = 'view-receipt.html';
+}
 
         function showToast(msg) {
             const t = document.getElementById('toast');
