@@ -922,30 +922,15 @@
         }
 
         // Redirect to appropriate dashboard
+        // Redirect to index.html after login for all roles
         function redirectToDashboard(role) {
-            // Get redirect parameter from URL if exists
-            const urlParams = new URLSearchParams(window.location.search);
-            const redirect = urlParams.get('redirect');
+            // Save the user's role in localStorage for index.html to use
+            const userData = JSON.parse(localStorage.getItem('owl_user'));
+            userData.redirectRole = role; // Add role info
+            localStorage.setItem('owl_user', JSON.stringify(userData));
             
-            if (redirect) {
-                window.location.href = redirect;
-                return;
-            }
-            
-            // Otherwise redirect based on role
-            switch(role) {
-                case 'admin':
-                    window.location.href = 'admin-dashboard.html';
-                    break;
-                case 'staff':
-                    window.location.href = 'staff-dashboard.html';
-                    break;
-                case 'customer':
-                    window.location.href = 'customer-dashboard.html';
-                    break;
-                default:
-                    window.location.href = 'index.html';
-            }
+            // Always redirect to index.html
+            window.location.href = 'index.html';
         }
 
         // Logout function (for future use)
