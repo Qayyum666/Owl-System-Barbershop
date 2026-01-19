@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Owl Barbershop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* CSS RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --gray-color: #95a5a6;
+            --light-gray: #f8f9fa;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        /* NAVIGATION */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+
+        .navbar .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 28px;
+            color: var(--secondary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--secondary-color);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        /* LOGIN CONTAINER */
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .login-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .login-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .login-body {
+            padding: 40px 30px;
+        }
+
+        /* FORM STYLES */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+            font-size: 18px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        /* ALERTS */
+        .alert {
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            color: var(--success-color);
+        }
+
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            color: var(--danger-color);
+        }
+
+        .alert i {
+            margin-right: 10px;
+        }
+
+        /* LOGIN OPTIONS */
+        .login-options {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--gray-color);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #eee;
+        }
+
+        .divider span {
+            padding: 0 15px;
+            font-size: 14px;
+        }
+
+        .demo-login {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .demo-login h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .demo-accounts {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .demo-account {
+            background-color: white;
+            border: 1px solid #eee;
+            border-radius: var(--border-radius);
+            padding: 12px 15px;
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .demo-account:hover {
+            border-color: var(--secondary-color);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .demo-account .role {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .role-admin {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .role-staff {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+
+        .role-customer {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--secondary-color);
+        }
+
+        /* FOOTER */
+        .footer {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        /* PASSWORD TOGGLE */
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray-color);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .login-card {
+                max-width: 100%;
+            }
+            
+            .login-header {
+                padding: 30px 20px;
+            }
+            
+            .login-body {
+                padding: 30px 20px;
+            }
+            
+            .nav-links {
+                gap: 15px;
+            }
+        }
+
+        /* LOADING SPINNER */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* FORGOT PASSWORD */
+        .forgot-password {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .forgot-password a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* REGISTER LINK */
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+
+        .register-link a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-cut"></i>
+                <span>Owl Barbershop</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="services.html">Services</a>
+                <a href="bookings.html">Book Now</a>
+                <a href="login.html" class="active">Login</a>
+                <a href="register.html">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Container -->
+    <section class="login-container">
+        <div class="login-card">
+            <!-- Login Header -->
+            <div class="login-header">
+                <h1><i class="fas fa-sign-in-alt"></i> Welcome Back</h1>
+                <p>Login to access your Owl Barbershop account</p>
+            </div>
+
+            <!-- Login Body -->
+            <div class="login-body">
+                <!-- Alert Messages -->
+                <div class="alert" id="loginAlert"></div>
+
+                <!-- Login Form -->
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username or Email</label>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" class="form-control" placeholder="Enter your username or email" required>
+                        </div>
+                        <div class="error-message" id="usernameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="passwordError"></div>
+                        
+                        <div class="forgot-password">
+                            <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Login As</label>
+                        <select id="role" class="form-control" style="padding-left: 15px;">
+                            <option value="customer">Customer</option>
+                            <option value="staff">Staff</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="loginButton">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Demo Login Section -->
+                <div class="demo-login">
+                    <h4><i class="fas fa-user-secret"></i> Quick Demo Login</h4>
+                    <p style="color: var(--gray-color); font-size: 14px; margin-bottom: 15px;">
+                        Try these demo accounts to explore different user roles:
+                    </p>
+                    
+                    <div class="demo-accounts">
+                        <div class="demo-account" data-username="admin" data-password="admin123" data-role="admin">
+                            <strong>Username:</strong> admin <span class="role role-admin">Admin</span>
+                            <div style="font-size: 12px; color: var(--gray-color); margin-top: 5px;">
+                                Password: admin123
+                            </div>
+                        </div>
+                        
+                        <div class="demo-account" data-username="john" data-password="staff123" data-role="staff">
+                            <strong>Username:</strong> john <span class="role role-staff">Staff</span>
+                            <div style="font-size: 12px; color: var(--gray-color); margin-top: 5px;">
+                                Password: staff123
+                            </div>
+                        </div>
+                        
+                        <div class="demo-account" data-username="customer" data-password="password123" data-role="customer">
+                            <strong>Username:</strong> customer <span class="role role-customer">Customer</span>
+                            <div style="font-size: 12px; color: var(--gray-color); margin-top: 5px;">
+                                Password: password123
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Register Link -->
+                <div class="register-link">
+                    <p>Don't have an account? <a href="register.html">Create one here</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Owl Barbershop System. ISP501 Project - M3CS2663B | Semester October 2025 - February 2026</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initLoginPage();
+            setupEventListeners();
+            checkRedirect();
+        });
+
+        // Initialize login page
+        function initLoginPage() {
+            console.log('Login page initialized');
+            
+            // Check if user is already logged in
+            checkExistingLogin();
+        }
+
+        // Check if user is already logged in
+        function checkExistingLogin() {
+            const userData = localStorage.getItem('owl_user');
+            if (userData) {
+                const user = JSON.parse(userData);
+                showAlert('info', `You are already logged in as ${user.full_name}. Redirecting...`);
+                setTimeout(() => {
+                    redirectToDashboard(user.role);
+                }, 2000);
+            }
+        }
+
+        // Check for redirect parameter
+        function checkRedirect() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('redirect');
+            if (redirect) {
+                showAlert('info', 'Please login to access that page.');
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Login form submission
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+
+            // Password toggle
+            const togglePassword = document.getElementById('togglePassword');
+            if (togglePassword) {
+                togglePassword.addEventListener('click', togglePasswordVisibility);
+            }
+
+            // Demo account clicks
+            const demoAccounts = document.querySelectorAll('.demo-account');
+            demoAccounts.forEach(account => {
+                account.addEventListener('click', function() {
+                    const username = this.getAttribute('data-username');
+                    const password = this.getAttribute('data-password');
+                    const role = this.getAttribute('data-role');
+                    
+                    fillDemoCredentials(username, password, role);
+                });
+            });
+
+            // Forgot password link
+            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showForgotPassword();
+                });
+            }
+        }
+
+        // Handle login form submission
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            // Clear previous errors
+            clearErrors();
+            
+            // Validate inputs
+            if (!validateForm(username, password)) {
+                return;
+            }
+            
+            // Show loading state
+            showLoading(true);
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                attemptLogin(username, password, role);
+            }, 1500);
+        }
+
+        // Validate form inputs
+        function validateForm(username, password) {
+            let isValid = true;
+            
+            if (!username) {
+                showError('usernameError', 'Please enter your username or email');
+                isValid = false;
+            }
+            
+            if (!password) {
+                showError('passwordError', 'Please enter your password');
+                isValid = false;
+            } else if (password.length < 6) {
+                showError('passwordError', 'Password must be at least 6 characters');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Attempt login with credentials
+        function attemptLogin(username, password, role) {
+            // Demo users for testing
+            const demoUsers = {
+                'admin': { 
+                    id: 1, 
+                    username: 'admin', 
+                    full_name: 'System Administrator', 
+                    email: 'admin@owlbarbershop.com', 
+                    role: 'admin', 
+                    phone: '012-3456789' 
+                },
+                'john': { 
+                    id: 2, 
+                    username: 'john', 
+                    full_name: 'John Barber', 
+                    email: 'john@owlbarbershop.com', 
+                    role: 'staff', 
+                    phone: '012-9876543' 
+                },
+                'customer': { 
+                    id: 3, 
+                    username: 'customer', 
+                    full_name: 'Regular Customer', 
+                    email: 'customer@owlbarbershop.com', 
+                    role: 'customer', 
+                    phone: '011-2233445' 
+                }
+            };
+            
+            // Check if user exists and password matches
+            if (demoUsers[username] && password === getDemoPassword(username)) {
+                // Login successful
+                const user = demoUsers[username];
+                
+                // Check if role matches
+                if (user.role !== role) {
+                    showLoading(false);
+                    showAlert('danger', `This account is a ${user.role}, not a ${role}. Please select the correct role.`);
+                    document.getElementById('role').value = user.role;
+                    return;
+                }
+                
+                // Save user to localStorage
+                saveUserToStorage(user);
+                
+                // Show success message
+                showLoading(false);
+                showAlert('success', `Login successful! Welcome back, ${user.full_name}.`);
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    redirectToDashboard(user.role);
+                }, 2000);
+                
+            } else {
+                // Login failed
+                showLoading(false);
+                showAlert('danger', 'Invalid username or password. Please try again.');
+            }
+        }
+
+        // Get demo password based on username
+        function getDemoPassword(username) {
+            const passwords = {
+                'admin': 'admin123',
+                'john': 'staff123',
+                'customer': 'password123'
+            };
+            return passwords[username] || '';
+        }
+
+        // Save user to localStorage
+        function saveUserToStorage(user) {
+            localStorage.setItem('owl_user', JSON.stringify(user));
+            
+            // Also initialize bookings if not exist
+            initializeUserBookings(user);
+        }
+
+        // Initialize user bookings if needed
+        function initializeUserBookings(user) {
+            const bookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
+            const userHasBookings = bookings.some(booking => 
+                booking.customer && booking.customer.email === user.email
+            );
+            
+            if (!userHasBookings && user.role === 'customer') {
+                createDemoBookings(user);
+            }
+        }
+
+        // Create demo bookings for new users
+        function createDemoBookings(user) {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const nextWeek = new Date(today);
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            
+            const demoBookings = [
+                {
+                    id: 'OWL-' + Date.now().toString().substr(-6),
+                    service: "Classic Haircut",
+                    date: tomorrow.toISOString().split('T')[0],
+                    time: "14:30",
+                    barber: "John Smith",
+                    customer: {
+                        name: user.full_name,
+                        phone: user.phone,
+                        email: user.email
+                    },
+                    amount: 25.00,
+                    status: "confirmed",
+                    bookingDate: today.toISOString(),
+                    duration: "30 minutes",
+                    paymentStatus: "paid"
+                },
+                {
+                    id: 'OWL-' + (Date.now() + 1).toString().substr(-6),
+                    service: "Beard Trim",
+                    date: nextWeek.toISOString().split('T')[0],
+                    time: "11:00",
+                    barber: "Mike Johnson",
+                    customer: {
+                        name: user.full_name,
+                        phone: user.phone,
+                        email: user.email
+                    },
+                    amount: 15.00,
+                    status: "pending",
+                    bookingDate: today.toISOString(),
+                    duration: "20 minutes",
+                    paymentStatus: "pending"
+                }
+            ];
+            
+            // Save to localStorage
+            localStorage.setItem('owl_bookings', JSON.stringify(demoBookings));
+        }
+
+        // Fill demo credentials into form
+        function fillDemoCredentials(username, password, role) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            document.getElementById('role').value = role;
+            
+            showAlert('info', `Demo ${role} credentials loaded. Click Login to continue.`);
+            
+            // Highlight the selected demo account
+            document.querySelectorAll('.demo-account').forEach(acc => {
+                acc.style.borderColor = '#eee';
+                acc.style.backgroundColor = 'white';
+            });
+            
+            const selected = document.querySelector(`.demo-account[data-username="${username}"]`);
+            if (selected) {
+                selected.style.borderColor = 'var(--secondary-color)';
+                selected.style.backgroundColor = 'rgba(52, 152, 219, 0.05)';
+            }
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+            }
+        }
+
+        // Show forgot password modal
+        function showForgotPassword() {
+            const email = prompt('Please enter your email address to reset your password:');
+            if (email) {
+                if (validateEmail(email)) {
+                    showAlert('success', `Password reset link has been sent to ${email}. Please check your email.`);
+                } else {
+                    showAlert('danger', 'Please enter a valid email address.');
+                }
+            }
+        }
+
+        // Validate email format
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Show loading state
+        function showLoading(isLoading) {
+            const loginButton = document.getElementById('loginButton');
+            if (isLoading) {
+                loginButton.innerHTML = '<span class="spinner"></span> Logging in...';
+                loginButton.disabled = true;
+            } else {
+                loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                loginButton.disabled = false;
+            }
+        }
+
+        // Show alert message
+        function showAlert(type, message) {
+            const alertElement = document.getElementById('loginAlert');
+            alertElement.className = `alert alert-${type}`;
+            alertElement.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            alertElement.style.display = 'block';
+            
+            // Auto hide after 5 seconds for success/info messages
+            if (type !== 'danger') {
+                setTimeout(() => {
+                    alertElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Show error message for specific field
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        // Clear all error messages
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(element => {
+                element.style.display = 'none';
+                element.textContent = '';
+            });
+        }
+
+        // Redirect to appropriate dashboard
+        function redirectToDashboard(role) {
+            // Get redirect parameter from URL if exists
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('redirect');
+            
+            if (redirect) {
+                window.location.href = redirect;
+                return;
+            }
+            
+            // Otherwise redirect based on role
+            switch(role) {
+                case 'admin':
+                    window.location.href = 'admin-dashboard.html';
+                    break;
+                case 'staff':
+                    window.location.href = 'staff-dashboard.html';
+                    break;
+                case 'customer':
+                    window.location.href = 'customer-dashboard.html';
+                    break;
+                default:
+                    window.location.href = 'index.html';
+            }
+        }
+
+        // Logout function (for future use)
+        function logout() {
+            localStorage.removeItem('owl_user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

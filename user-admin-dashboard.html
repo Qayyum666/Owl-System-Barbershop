@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Admin Dashboard - User Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #ff9e00;
+            --danger-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+            --border-radius: 10px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 20px 0;
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header h2 i {
+            font-size: 1.8rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+        }
+
+        /* Header Styles */
+        header {
+            height: var(--header-height);
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 30px;
+            border: 1px solid #ddd;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .notification {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification i {
+            font-size: 1.3rem;
+            color: #666;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Content Area Styles */
+        .content-wrapper {
+            padding: 30px;
+        }
+
+        .page-title {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 2rem;
+            color: var(--dark-color);
+        }
+
+        /* User Stats Cards */
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .user-stat-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+        }
+
+        .user-stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .user-stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .user-stat-icon.total {
+            background-color: var(--primary-color);
+        }
+
+        .user-stat-icon.active {
+            background-color: var(--success-color);
+        }
+
+        .user-stat-icon.inactive {
+            background-color: #6c757d;
+        }
+
+        .user-stat-icon.new {
+            background-color: var(--warning-color);
+        }
+
+        .user-stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .user-stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #2cb1d4;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* User Table */
+        .user-table-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-header h3 {
+            font-size: 1.3rem;
+        }
+
+        .table-filters {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            background-color: white;
+            outline: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .user-avatar-small {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .user-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .user-email {
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-active {
+            background-color: #e7f7ef;
+            color: #1ea97c;
+        }
+
+        .status-inactive {
+            background-color: #f5f5f5;
+            color: #777;
+        }
+
+        .status-pending {
+            background-color: #fff5e6;
+            color: #ff9800;
+        }
+
+        .role-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .role-admin {
+            background-color: #e6f3ff;
+            color: #2196f3;
+        }
+
+        .role-user {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+
+        .role-moderator {
+            background-color: #f3e6ff;
+            color: #9c27b0;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-action.view {
+            background-color: #e6f3ff;
+            color: #2196f3;
+        }
+
+        .btn-action.edit {
+            background-color: #fff5e6;
+            color: #ff9800;
+        }
+
+        .btn-action.delete {
+            background-color: #ffe6e6;
+            color: #f44336;
+        }
+
+        .btn-action:hover {
+            transform: scale(1.1);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pagination-btn:hover, .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* User Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.4rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #777;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background-color: #f5f5f5;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .search-box {
+                width: 200px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .user-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .header-right {
+                gap: 15px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .table-filters {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .user-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .content-wrapper {
+                padding: 20px;
+            }
+
+            .page-title h1 {
+                font-size: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-users-cog"></i> User Admin</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#" class="active"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="#"><i class="fas fa-user-shield"></i> Roles</a></li>
+            <li><a href="#"><i class="fas fa-user-lock"></i> Permissions</a></li>
+            <li><a href="#"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchUsers" placeholder="Search users...">
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">3</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">SA</div>
+                    <div class="user-info">
+                        <h4>Super Admin</h4>
+                        <p>Administrator</p>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Page Title -->
+            <div class="page-title">
+                <h1>User Management</h1>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="addUserBtn">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </button>
+                    <button class="btn btn-outline" id="exportUsersBtn">
+                        <i class="fas fa-file-export"></i> Export Users
+                    </button>
+                    <button class="btn btn-outline" id="refreshUsersBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Stats -->
+            <div class="user-stats">
+                <div class="user-stat-card">
+                    <div class="user-stat-icon total">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="user-stat-info">
+                        <h3 id="totalUsers">1,247</h3>
+                        <p>Total Users</p>
+                    </div>
+                </div>
+                <div class="user-stat-card">
+                    <div class="user-stat-icon active">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="user-stat-info">
+                        <h3 id="activeUsers">1,023</h3>
+                        <p>Active Users</p>
+                    </div>
+                </div>
+                <div class="user-stat-card">
+                    <div class="user-stat-icon inactive">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <div class="user-stat-info">
+                        <h3 id="inactiveUsers">189</h3>
+                        <p>Inactive Users</p>
+                    </div>
+                </div>
+                <div class="user-stat-card">
+                    <div class="user-stat-icon new">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="user-stat-info">
+                        <h3 id="newUsers">35</h3>
+                        <p>New This Month</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="user-table-container">
+                <div class="table-header">
+                    <h3>All Users</h3>
+                    <div class="table-filters">
+                        <select class="filter-select" id="filterRole">
+                            <option value="">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">User</option>
+                            <option value="moderator">Moderator</option>
+                        </select>
+                        <select class="filter-select" id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                        <select class="filter-select" id="sortUsers">
+                            <option value="name-asc">Name A-Z</option>
+                            <option value="name-desc">Name Z-A</option>
+                            <option value="date-new">Newest First</option>
+                            <option value="date-old">Oldest First</option>
+                        </select>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined Date</th>
+                            <th>Last Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <!-- Users will be populated by JavaScript -->
+                    </tbody>
+                </table>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="pagination-btn prev" id="prevPage" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn">4</button>
+                    <button class="pagination-btn next" id="nextPage">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer>
+                <p>User Admin Dashboard &copy; 2023. All rights reserved.</p>
+            </footer>
+        </div>
+    </main>
+
+    <!-- User Modal (Hidden by default) -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New User</h3>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select id="role" class="form-control" required>
+                                <option value="user">User</option>
+                                <option value="moderator">Moderator</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" class="form-control" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveUserBtn">Save User</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const addUserBtn = document.getElementById('addUserBtn');
+        const refreshUsersBtn = document.getElementById('refreshUsersBtn');
+        const exportUsersBtn = document.getElementById('exportUsersBtn');
+        const searchUsers = document.getElementById('searchUsers');
+        const usersTable = document.getElementById('usersTable');
+        const userModal = document.getElementById('userModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveUserBtn = document.getElementById('saveUserBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const userForm = document.getElementById('userForm');
+        
+        // User stats elements
+        const totalUsers = document.getElementById('totalUsers');
+        const activeUsers = document.getElementById('activeUsers');
+        const inactiveUsers = document.getElementById('inactiveUsers');
+        const newUsers = document.getElementById('newUsers');
+        
+        // Filter elements
+        const filterRole = document.getElementById('filterRole');
+        const filterStatus = document.getElementById('filterStatus');
+        const sortUsers = document.getElementById('sortUsers');
+        
+        // Pagination elements
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+
+        // Sample Users Data
+        let users = [
+            { id: 1, firstName: "John", lastName: "Smith", email: "john.smith@example.com", role: "admin", status: "active", joinDate: "2023-01-15", lastActive: "2023-10-20", phone: "+1 234 567 8901", department: "Administration", avatarColor: "#4361ee" },
+            { id: 2, firstName: "Emma", lastName: "Johnson", email: "emma.j@example.com", role: "moderator", status: "active", joinDate: "2023-02-10", lastActive: "2023-10-19", phone: "+1 234 567 8902", department: "Support", avatarColor: "#f72585" },
+            { id: 3, firstName: "Michael", lastName: "Brown", email: "m.brown@example.com", role: "user", status: "active", joinDate: "2023-03-05", lastActive: "2023-10-18", phone: "+1 234 567 8903", department: "Sales", avatarColor: "#4cc9f0" },
+            { id: 4, firstName: "Sarah", lastName: "Davis", email: "sarah.davis@example.com", role: "user", status: "inactive", joinDate: "2023-04-20", lastActive: "2023-09-15", phone: "+1 234 567 8904", department: "Marketing", avatarColor: "#ff9e00" },
+            { id: 5, firstName: "Robert", lastName: "Wilson", email: "r.wilson@example.com", role: "admin", status: "active", joinDate: "2023-05-12", lastActive: "2023-10-20", phone: "+1 234 567 8905", department: "IT", avatarColor: "#9c27b0" },
+            { id: 6, firstName: "Lisa", lastName: "Miller", email: "lisa.m@example.com", role: "user", status: "pending", joinDate: "2023-06-30", lastActive: "2023-10-10", phone: "+1 234 567 8906", department: "HR", avatarColor: "#1ea97c" },
+            { id: 7, firstName: "David", lastName: "Taylor", email: "d.taylor@example.com", role: "moderator", status: "active", joinDate: "2023-07-15", lastActive: "2023-10-19", phone: "+1 234 567 8907", department: "Support", avatarColor: "#ff5722" },
+            { id: 8, firstName: "Jennifer", lastName: "Anderson", email: "j.anderson@example.com", role: "user", status: "active", joinDate: "2023-08-22", lastActive: "2023-10-18", phone: "+1 234 567 8908", department: "Sales", avatarColor: "#3f37c9" },
+        ];
+
+        // State variables
+        let currentPage = 1;
+        let usersPerPage = 5;
+        let filteredUsers = [...users];
+        let isEditing = false;
+        let currentEditUserId = null;
+
+        // Initialize Dashboard
+        function initUserDashboard() {
+            populateUsersTable();
+            updateUserStats();
+            setupEventListeners();
+            setActiveMenuItem();
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Sidebar toggle
+            menuToggle.addEventListener('click', toggleSidebar);
+            
+            // User actions
+            addUserBtn.addEventListener('click', openAddUserModal);
+            refreshUsersBtn.addEventListener('click', refreshUserData);
+            exportUsersBtn.addEventListener('click', exportUsers);
+            
+            // Modal actions
+            closeModal.addEventListener('click', closeUserModal);
+            cancelBtn.addEventListener('click', closeUserModal);
+            saveUserBtn.addEventListener('click', saveUser);
+            
+            // Filter and search
+            searchUsers.addEventListener('input', filterUsers);
+            filterRole.addEventListener('change', filterUsers);
+            filterStatus.addEventListener('change', filterUsers);
+            sortUsers.addEventListener('change', filterUsers);
+            
+            // Pagination
+            prevPage.addEventListener('click', goToPrevPage);
+            nextPage.addEventListener('click', goToNextPage);
+            
+            // Close modal when clicking outside
+            userModal.addEventListener('click', function(e) {
+                if (e.target === userModal) {
+                    closeUserModal();
+                }
+            });
+        }
+
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            if (sidebar.classList.contains('active')) {
+                mainContent.style.marginLeft = '0';
+            } else {
+                mainContent.style.marginLeft = 'var(--sidebar-width)';
+            }
+        }
+
+        // Populate users table
+        function populateUsersTable() {
+            usersTable.innerHTML = '';
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * usersPerPage;
+            const endIndex = startIndex + usersPerPage;
+            const usersToShow = filteredUsers.slice(startIndex, endIndex);
+            
+            if (usersToShow.length === 0) {
+                usersTable.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-users-slash fa-2x" style="color: #ddd; margin-bottom: 15px;"></i>
+                            <p>No users found matching your criteria</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            usersToShow.forEach(user => {
+                const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
+                const fullName = `${user.firstName} ${user.lastName}`;
+                const joinDate = formatDate(user.joinDate);
+                const lastActive = formatDate(user.lastActive);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="user-info-cell">
+                            <div class="user-avatar-small" style="background-color: ${user.avatarColor}">${initials}</div>
+                            <div>
+                                <div class="user-name">${fullName}</div>
+                                <div class="user-email">${user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="role-badge role-${user.role}">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span></td>
+                    <td><span class="status-badge status-${user.status}">${user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span></td>
+                    <td>${joinDate}</td>
+                    <td>${lastActive}</td>
+                    <td>
+                        <div class="action-buttons-cell">
+                            <button class="btn-action view" data-id="${user.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-action edit" data-id="${user.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action delete" data-id="${user.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                usersTable.appendChild(row);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.btn-action.view').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = parseInt(this.getAttribute('data-id'));
+                    viewUser(userId);
+                });
+            });
+            
+            document.querySelectorAll('.btn-action.edit').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = parseInt(this.getAttribute('data-id'));
+                    editUser(userId);
+                });
+            });
+            
+            document.querySelectorAll('.btn-action.delete').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = parseInt(this.getAttribute('data-id'));
+                    deleteUser(userId);
+                });
+            });
+            
+            // Update pagination buttons
+            updatePagination();
+        }
+
+        // Update user statistics
+        function updateUserStats() {
+            const total = users.length;
+            const active = users.filter(user => user.status === 'active').length;
+            const inactive = users.filter(user => user.status === 'inactive').length;
+            const newThisMonth = users.filter(user => {
+                const joinDate = new Date(user.joinDate);
+                const now = new Date();
+                const diffTime = Math.abs(now - joinDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays <= 30;
+            }).length;
+            
+            // Animate the numbers
+            animateValue(totalUsers, parseInt(totalUsers.textContent), total, 800);
+            animateValue(activeUsers, parseInt(activeUsers.textContent), active, 800);
+            animateValue(inactiveUsers, parseInt(inactiveUsers.textContent), inactive, 800);
+            animateValue(newUsers, parseInt(newUsers.textContent), newThisMonth, 800);
+        }
+
+        // Animate number counting effect
+        function animateValue(element, start, end, duration) {
+            const startTime = performance.now();
+            
+            function updateValue(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const currentValue = Math.floor(start + progress * (end - start));
+                element.textContent = currentValue.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateValue);
+                }
+            }
+            
+            requestAnimationFrame(updateValue);
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+
+        // Filter users based on search and filters
+        function filterUsers() {
+            const searchTerm = searchUsers.value.toLowerCase();
+            const roleFilter = filterRole.value;
+            const statusFilter = filterStatus.value;
+            const sortOption = sortUsers.value;
+            
+            // Filter users
+            filteredUsers = users.filter(user => {
+                const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+                const email = user.email.toLowerCase();
+                
+                const matchesSearch = fullName.includes(searchTerm) || email.includes(searchTerm);
+                const matchesRole = !roleFilter || user.role === roleFilter;
+                const matchesStatus = !statusFilter || user.status === statusFilter;
+                
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+            
+            // Sort users
+            sortFilteredUsers(sortOption);
+            
+            // Reset to first page
+            currentPage = 1;
+            
+            // Update table
+            populateUsersTable();
+            updateUserStats();
+        }
+
+        // Sort filtered users
+        function sortFilteredUsers(sortOption) {
+            switch(sortOption) {
+                case 'name-asc':
+                    filteredUsers.sort((a, b) => {
+                        const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+                        const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    });
+                    break;
+                case 'name-desc':
+                    filteredUsers.sort((a, b) => {
+                        const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+                        const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+                        return nameB.localeCompare(nameA);
+                    });
+                    break;
+                case 'date-new':
+                    filteredUsers.sort((a, b) => new Date(b.joinDate) - new Date(a.joinDate));
+                    break;
+                case 'date-old':
+                    filteredUsers.sort((a, b) => new Date(a.joinDate) - new Date(b.joinDate));
+                    break;
+            }
+        }
+
+        // Update pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            const paginationContainer = document.querySelector('.pagination');
+            
+            // Clear page number buttons (keep prev/next)
+            const pageButtons = paginationContainer.querySelectorAll('.pagination-btn:not(.prev):not(.next)');
+            pageButtons.forEach(btn => btn.remove());
+            
+            // Create page number buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => goToPage(i));
+                
+                // Insert before next button
+                nextPage.parentNode.insertBefore(pageBtn, nextPage);
+            }
+            
+            // Update prev/next button states
+            prevPage.disabled = currentPage === 1;
+            nextPage.disabled = currentPage === totalPages;
+            
+            if (prevPage.disabled) {
+                prevPage.classList.add('disabled');
+            } else {
+                prevPage.classList.remove('disabled');
+            }
+            
+            if (nextPage.disabled) {
+                nextPage.classList.add('disabled');
+            } else {
+                nextPage.classList.remove('disabled');
+            }
+        }
+
+        // Pagination functions
+        function goToPage(page) {
+            currentPage = page;
+            populateUsersTable();
+        }
+
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                populateUsersTable();
+            }
+        }
+
+        function goToNextPage() {
+            const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                populateUsersTable();
+            }
+        }
+
+        // Open modal to add new user
+        function openAddUserModal() {
+            isEditing = false;
+            currentEditUserId = null;
+            modalTitle.textContent = 'Add New User';
+            userForm.reset();
+            userModal.classList.add('active');
+        }
+
+        // Close user modal
+        function closeUserModal() {
+            userModal.classList.remove('active');
+            userForm.reset();
+        }
+
+        // Save user (add or update)
+        function saveUser() {
+            // Get form values
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const role = document.getElementById('role').value;
+            const status = document.getElementById('status').value;
+            const phone = document.getElementById('phone').value.trim();
+            const department = document.getElementById('department').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+            
+            // Validate form
+            if (!firstName || !lastName || !email) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showNotification('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            if (isEditing) {
+                // Update existing user
+                const userIndex = users.findIndex(user => user.id === currentEditUserId);
+                if (userIndex !== -1) {
+                    users[userIndex] = {
+                        ...users[userIndex],
+                        firstName,
+                        lastName,
+                        email,
+                        role,
+                        status,
+                        phone,
+                        department,
+                        notes
+                    };
+                    
+                    showNotification(`User ${firstName} ${lastName} updated successfully`, 'success');
+                }
+            } else {
+                // Add new user
+                const newUserId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                const avatarColors = ['#4361ee', '#f72585', '#4cc9f0', '#ff9e00', '#9c27b0', '#1ea97c', '#ff5722', '#3f37c9'];
+                const randomColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+                
+                const newUser = {
+                    id: newUserId,
+                    firstName,
+                    lastName,
+                    email,
+                    role,
+                    status,
+                    joinDate: new Date().toISOString().split('T')[0],
+                    lastActive: new Date().toISOString().split('T')[0],
+                    phone,
+                    department,
+                    notes,
+                    avatarColor: randomColor
+                };
+                
+                users.unshift(newUser);
+                showNotification(`User ${firstName} ${lastName} added successfully`, 'success');
+            }
+            
+            // Close modal and refresh table
+            closeUserModal();
+            filterUsers();
+            updateUserStats();
+        }
+
+        // View user details
+        function viewUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                // In a real app, this would open a detailed view modal
+                showNotification(`Viewing details for ${user.firstName} ${user.lastName}`, 'info');
+                console.log('Viewing user:', user);
+            }
+        }
+
+        // Edit user
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                isEditing = true;
+                currentEditUserId = userId;
+                modalTitle.textContent = `Edit User: ${user.firstName} ${user.lastName}`;
+                
+                // Populate form with user data
+                document.getElementById('firstName').value = user.firstName;
+                document.getElementById('lastName').value = user.lastName;
+                document.getElementById('email').value = user.email;
+                document.getElementById('role').value = user.role;
+                document.getElementById('status').value = user.status;
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('department').value = user.department || '';
+                document.getElementById('notes').value = user.notes || '';
+                
+                // Open modal
+                userModal.classList.add('active');
+            }
+        }
+
+        // Delete user with confirmation
+        function deleteUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                // Confirm deletion
+                if (confirm(`Are you sure you want to delete user "${user.firstName} ${user.lastName}"? This action cannot be undone.`)) {
+                    // Remove user from array
+                    users = users.filter(u => u.id !== userId);
+                    
+                    // Update filtered users
+                    filteredUsers = filteredUsers.filter(u => u.id !== userId);
+                    
+                    // Update table and stats
+                    populateUsersTable();
+                    updateUserStats();
+                    
+                    showNotification(`User "${user.firstName} ${user.lastName}" deleted successfully`, 'success');
+                }
+            }
+        }
+
+        // Refresh user data
+        function refreshUserData() {
+            // Show loading state
+            refreshUsersBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshUsersBtn.disabled = true;
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // In a real app, this would fetch fresh data from the server
+                filterUsers();
+                
+                // Restore button state
+                refreshUsersBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                refreshUsersBtn.disabled = false;
+                
+                showNotification('User data refreshed successfully', 'success');
+            }, 1000);
+        }
+
+        // Export users
+        function exportUsers() {
+            // In a real app, this would generate and download a CSV/Excel file
+            showNotification('Exporting user data...', 'info');
+            
+            setTimeout(() => {
+                showNotification('User data exported successfully (simulated)', 'success');
+            }, 1500);
+        }
+
+        // Email validation
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Set active menu item
+        function setActiveMenuItem() {
+            const menuItems = document.querySelectorAll('.sidebar-menu a');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification-toast ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close"><i class="fas fa-times"></i></button>
+            `;
+            
+            // Add styles for notification
+            const style = document.createElement('style');
+            style.textContent = `
+                .notification-toast {
+                    position: fixed;
+                    top: 100px;
+                    right: 30px;
+                    background-color: white;
+                    border-radius: var(--border-radius);
+                    padding: 15px 20px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    min-width: 300px;
+                    z-index: 9999;
+                    animation: slideIn 0.3s ease forwards;
+                    border-left: 4px solid ${type === 'success' ? '#1ea97c' : type === 'error' ? '#f44336' : '#4361ee'};
+                }
+                
+                .notification-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                
+                .notification-content i {
+                    font-size: 1.2rem;
+                    color: ${type === 'success' ? '#1ea97c' : type === 'error' ? '#f44336' : '#4361ee'};
+                }
+                
+                .notification-close {
+                    background: none;
+                    border: none;
+                    color: #999;
+                    cursor: pointer;
+                    font-size: 1rem;
+                }
+                
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            
+            document.head.appendChild(style);
+            document.body.appendChild(notification);
+            
+            // Close notification on button click
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => {
+                    notification.remove();
+                    style.remove();
+                }, 300);
+            });
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        notification.remove();
+                        style.remove();
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initUserDashboard);
+    </script>
+</body>
+</html>
