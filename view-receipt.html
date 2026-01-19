@@ -3,38 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Receipt - Owl Barbershop</title>
+    <title>Receipt - Owl Barbershop</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background-color: #f4f4f4; display: flex; justify-content: center; padding: 40px 20px; }
-        .receipt-card { background: white; width: 100%; max-width: 400px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 4px; position: relative; }
-        .receipt-card::after { content: ""; position: absolute; bottom: -10px; left: 0; width: 100%; height: 10px; background: linear-gradient(-45deg, transparent 5px, white 5px), linear-gradient(45deg, transparent 5px, white 5px); background-size: 10px 10px; }
-        
-        .header { text-align: center; border-bottom: 2px dashed #eee; padding-bottom: 20px; margin-bottom: 20px; }
-        .logo-text { font-family: 'Arial', sans-serif; font-weight: bold; font-size: 24px; color: #2c3e50; }
-        
-        .item-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
-        .total-section { border-top: 2px dashed #eee; margin-top: 20px; padding-top: 20px; }
-        .total-row { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; }
+        :root {
+            --primary: #2c3e50; /* Midnight Navy */
+            --secondary: #3498db; /* Sky Blue */
+            --light: #ecf0f1;
+        }
 
-        .btn-pay { width: 100%; background: #c5a059; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 30px; font-family: 'Arial', sans-serif; }
-        .back-link { display: block; text-align: center; margin-top: 20px; color: #7f8c8d; text-decoration: none; font-family: 'Arial', sans-serif; font-size: 14px; }
+        body { 
+            font-family: 'Courier New', Courier, monospace; 
+            background-color: #dcdde1; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            padding: 50px 20px; 
+        }
+
+        /* Long Receipt Style */
+        .receipt-card { 
+            background: white; 
+            width: 100%; 
+            max-width: 400px; 
+            padding: 40px 30px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+            border-radius: 2px;
+            position: relative;
+            min-height: 600px; /* Makes it look longer */
+            animation: slideDown 0.8s ease-out;
+        }
+
+        /* Zig-zag bottom edge */
+        .receipt-card::after { 
+            content: ""; 
+            position: absolute; 
+            bottom: -15px; 
+            left: 0; 
+            width: 100%; 
+            height: 15px; 
+            background: linear-gradient(-45deg, transparent 8px, white 8px), 
+                        linear-gradient(45deg, transparent 8px, white 8px); 
+            background-size: 16px 16px; 
+        }
+
+        .header { 
+            text-align: center; 
+            border-bottom: 2px dashed var(--light); 
+            padding-bottom: 25px; 
+            margin-bottom: 30px; 
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .brand-box img {
+            height: 40px;
+            width: auto;
+        }
+
+        .logo-text { 
+            font-family: 'Arial', sans-serif; 
+            font-weight: 900; 
+            font-size: 22px; 
+            color: var(--primary); 
+            letter-spacing: 1px;
+        }
         
-        /* Interactive Instruction Box */
-        #paymentInstruction { display: none; background: #fff9e6; border: 1px solid #ffeeba; padding: 15px; margin-top: 20px; border-radius: 8px; color: #856404; text-align: center; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .item-list { margin-bottom: 40px; }
+
+        .item-row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 15px; 
+            font-size: 15px; 
+            color: #333;
+        }
+
+        .total-section { 
+            border-top: 3px double var(--primary); 
+            margin-top: 30px; 
+            padding-top: 20px; 
+        }
+
+        .total-row { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 22px; 
+            font-weight: bold; 
+            color: var(--primary);
+        }
+
+        /* Interactive Button */
+        .btn-pay { 
+            width: 100%; 
+            background: var(--secondary); 
+            color: white; 
+            border: none; 
+            padding: 18px; 
+            border-radius: 50px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 40px; 
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-pay:hover {
+            transform: scale(1.03);
+            background: #2980b9;
+        }
+
+        .back-link { 
+            display: inline-block;
+            margin-top: 30px; 
+            color: var(--primary); 
+            text-decoration: none; 
+            font-family: 'Arial', sans-serif; 
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .back-link:hover { color: var(--secondary); }
+
+        /* Payment Notification Popup */
+        #paymentInstruction { 
+            display: none; 
+            background: var(--primary); 
+            color: white; 
+            padding: 20px; 
+            margin-top: 25px; 
+            border-radius: 12px; 
+            text-align: center; 
+            border-left: 5px solid var(--secondary);
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
 
 <div class="receipt-card">
     <div class="header">
-        <div class="logo-text">OWL BARBERSHOP</div>
-        <p style="font-size: 12px; color: #666;">Muar, Johor, Malaysia</p>
-        <p id="date" style="font-size: 12px;"></p>
+        <div class="brand-box">
+            <img src="owlicon.png" alt="Logo">
+            <div class="logo-text">OWL BARBERSHOP</div>
+        </div>
+        <p style="font-size: 13px; color: #7f8c8d; margin-top: 5px;">EST. 2023 | MUAR, JOHOR</p>
+        <p id="receiptDate" style="font-size: 12px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;"></p>
     </div>
 
-    <div id="receiptItems">
+    <div class="item-list" id="receiptItems">
         </div>
 
     <div class="total-section">
@@ -44,31 +179,31 @@
         </div>
     </div>
 
-    <button class="btn-pay" onclick="showInstruction()">
-        <i class="fas fa-cash-register"></i> PAY AT COUNTER
+    <button class="btn-pay" onclick="activatePayment()">
+        <i class="fas fa-wallet"></i> PAY AT COUNTER
     </button>
 
     <div id="paymentInstruction">
-        <i class="fas fa-camera" style="font-size: 24px; margin-bottom: 10px;"></i><br>
-        <strong>READY TO GO!</strong><br>
-        Please <strong>Screenshot</strong> this receipt and show it to our cashier to complete your purchase.
+        <i class="fas fa-camera-retro" style="font-size: 30px; color: var(--secondary); margin-bottom: 15px;"></i><br>
+        <span style="font-size: 18px; letter-spacing: 1px;"><strong>SCREENSHOT NOW!</strong></span><br>
+        <p style="font-size: 13px; margin-top: 10px; opacity: 0.9;">Please show this receipt to our cashier to finalize your payment. Thank you for choosing Owl!</p>
     </div>
 
-    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    <center><a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Shop</a></center>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Load the data we saved in LocalStorage from product.html
         const cartData = JSON.parse(localStorage.getItem('owlCart'));
         const container = document.getElementById('receiptItems');
         const totalEl = document.getElementById('grandTotal');
-        const dateEl = document.getElementById('date');
+        const dateEl = document.getElementById('receiptDate');
 
-        // Set current date
-        dateEl.innerText = new Date().toLocaleString();
+        dateEl.innerText = "DATE: " + new Date().toLocaleString().toUpperCase();
 
         if (!cartData || Object.keys(cartData).length === 0) {
-            container.innerHTML = "<p>No items found.</p>";
+            container.innerHTML = "<p style='text-align:center;'>Your cart is currently empty.</p>";
             return;
         }
 
@@ -78,7 +213,7 @@
             total += subtotal;
             return `
                 <div class="item-row">
-                    <span>${item.name} (x${item.qty})</span>
+                    <span>${item.name} x${item.qty}</span>
                     <span>RM ${subtotal.toFixed(2)}</span>
                 </div>
             `;
@@ -87,9 +222,20 @@
         totalEl.innerText = `RM ${total.toFixed(2)}`;
     });
 
-    function showInstruction() {
-        document.getElementById('paymentInstruction').style.display = 'block';
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    function activatePayment() {
+        const instruction = document.getElementById('paymentInstruction');
+        instruction.style.display = 'block';
+        
+        // Interactive "Success" Vibrate feel
+        if (window.navigator.vibrate) {
+            window.navigator.vibrate(200);
+        }
+
+        // Auto-scroll so the user sees the instructions clearly
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
     }
 </script>
 
