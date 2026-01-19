@@ -23,6 +23,20 @@
         --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         --transition: all 0.3s ease;
     }
+        .logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--primary-color);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.logo i {
+    margin-right: 10px;
+    font-size: 28px;
+    color: var(--secondary-color); /* This makes the scissors blue */
+}
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #333; background-color: #fff; }
@@ -99,16 +113,17 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="container">
-            <a href="index.html" class="logo"><i class="fas fa-owl"></i> Owl Barbershop</a>
-            <div class="nav-links" id="navLinks">
-    <a href="index.html"><i class="fas fa-home"></i> Home</a>
-    <a href="services.html"><i class="fas fa-cut"></i> Services</a>
-    <a href="product.html" class="active"><i class="fas fa-shopping-bag"></i> Product</a>
-    <a href="bookings.html"><i class="fas fa-calendar-alt"></i> Book Now</a>
+    <div class="container">
+        <a href="index.html" class="logo">
+            <i class="fas fa-cut"></i>
+            <span>Owl Barbershop</span>
+        </a>
+        
+        <div class="nav-links" id="navLinks">
+            <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+            </div>
     </div>
-</div>
-    </nav>
+</nav>
 
     <header class="page-header">
         <div class="container">
