@@ -170,37 +170,71 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // 1. Fetch data from localStorage (Logic used in my-bookings.html)
-        const bookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
-        
-        // Get the most recent pending booking to pay for
-        const latestBooking = bookings[bookings.length - 1];
+        // 1. Get logged-in user and all bookings
+        const currentUser = JSON.parse(localStorage.getItem('owl_user'));
+        const allBookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
 
-        if (latestBooking) {
-            document.getElementById('sumService').textContent = latestBooking.service_name;
-            document.getElementById('sumBarber').textContent = latestBooking.barber_name;
-            document.getElementById('sumDate').textContent = latestBooking.date;
-            document.getElementById('sumTime').textContent = latestBooking.time;
-            document.getElementById('sumPrice').textContent = `RM ${latestBooking.price}`;
+        if (!currentUser) {
+            alert("Please login first to access payments.");
+            window.location.href = 'index.html';
+            return;
         }
 
-        // 2. Handle Payment Submission
+        // 2. Filter bookings for THIS specific unique user that are 'pending'
+        // Matches the 'full_name' stored during login in bookings.html
+        const userBookings = allBookings.filter(b => 
+            b.customer_name === currentUser.full_name && b.status === 'pending'
+        );
+
+        // 3. Calculate Total Amount for this customer
+        const totalAmount = userBookings.reduce((sum, b) => sum + parseFloat(b.price), 0);
+
+        // Update the UI Summary
+        const sumContent = document.getElementById('summaryContent');
+        if (userBookings.length > 0) {
+            document.getElementById('sumService').textContent = `${userBookings.length} Pending Appointment(s)`;
+            document.getElementById('sumBarber').textContent = currentUser.full_name; 
+            document.getElementById('sumPrice').textContent = `RM ${totalAmount.toFixed(2)}`;
+        } else {
+            sumContent.innerHTML = "<p style='text-align:center; padding:20px;'>No pending payments found.</p>";
+            document.getElementById('payBtn').style.display = 'none';
+        }
+
+        // 4. Form Validation & Submission
         document.getElementById('paymentForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            const cardHolderInput = document.querySelector('input[placeholder="John Doe"]').value;
+            const cardNumberInput = document.querySelector('input[placeholder="0000 0000 0000 0000"]').value.replace(/\s/g, '');
+
+            // VALIDATION: Name must match Account Name
+            if (cardHolderInput.toLowerCase() !== currentUser.full_name.toLowerCase()) {
+                alert(`Cardholder name invalid. Please use your registered name: ${currentUser.full_name}`);
+                return;
+            }
+
+            // VALIDATION: Card number length
+            if (cardNumberInput.length < 12) {
+                alert("Card number invalid: Need at least 12 numbers");
+                return;
+            }
+
+            // Process Payment
             const payBtn = document.getElementById('payBtn');
             payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             payBtn.disabled = true;
 
-            // Simulate Network Delay
             setTimeout(() => {
-                alert('Payment Successful! Your appointment is confirmed.');
-                
-                // Update booking status to confirmed if needed
-                if(latestBooking) {
-                    latestBooking.status = 'confirmed';
-                    localStorage.setItem('owl_bookings', JSON.stringify(bookings));
-                }
-                
+                // Update all 'pending' bookings for this user to 'confirmed'
+                const updatedBookings = allBookings.map(b => {
+                    if (b.customer_name === currentUser.full_name && b.status === 'pending') {
+                        return { ...b, status: 'confirmed' };
+                    }
+                    return b;
+                });
+
+                localStorage.setItem('owl_bookings', JSON.stringify(updatedBookings));
+                alert(`Payment Successful! RM ${totalAmount.toFixed(2)} processed for ${cardHolderInput}.`);
                 window.location.href = 'my-bookings.html';
             }, 2000);
         });
