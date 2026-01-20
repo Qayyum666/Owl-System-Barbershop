@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt - Owl Barbershop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #2c3e50; /* Matches index.html */
+            --accent-blue: #3498db;
+            --success-green: #2ecc71;
+            --text-light: #ecf0f1;
+            --bg-gray: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .receipt-card {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .receipt-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .receipt-header i {
+            font-size: 3rem;
+            color: var(--success-green);
+            margin-bottom: 15px;
+        }
+
+        .receipt-body {
+            padding: 30px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 10px;
+        }
+
+        .receipt-row span:first-child {
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+
+        .receipt-row span:last-child {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .total-section {
+            background: #fdfdfd;
+            padding: 20px;
+            border: 2px solid var(--primary-dark);
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .total-amount {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            font-weight: 700;
+            display: block;
+        }
+
+        .btn-back {
+            display: block;
+            width: 100%;
+            background: var(--primary-dark);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 30px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .btn-back:hover {
+            background: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media print {
+            .btn-back { display: none; }
+            body { background: white; }
+            .receipt-card { box-shadow: none; border: 1px solid #eee; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt-card">
+    <div class="receipt-header">
+        <i class="fas fa-check-circle"></i>
+        <h2>Payment Successful</h2>
+        <p>Thank you for your business!</p>
+    </div>
+
+    <div class="receipt-body">
+        <div class="receipt-row">
+            <span>Booking ID</span>
+            <span id="rId">-</span>
+        </div>
+        <div class="receipt-row">
+            <span>Customer Name</span>
+            <span id="rName">-</span>
+        </div>
+        <div class="receipt-row">
+            <span>Service</span>
+            <span id="rService">-</span>
+        </div>
+        <div class="receipt-row">
+            <span>Date</span>
+            <span id="rDate">-</span>
+        </div>
+        <div class="receipt-row">
+            <span>Time</span>
+            <span id="rTime">-</span>
+        </div>
+        <div class="receipt-row">
+            <span>Payment Method</span>
+            <span>Credit/Debit Card</span>
+        </div>
+
+        <div class="total-section">
+            <span style="color: #7f8c8d; font-size: 0.9rem;">Total Amount Paid</span>
+            <span class="total-amount">RM <span id="rTotal">0.00</span></span>
+        </div>
+
+        <a href="my-bookings.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to My Bookings
+        </a>
+        
+        <p style="text-align:center; margin-top:15px; color:#bdc3c7; font-size:0.8rem;">
+            A copy of this receipt has been saved to your account.
+        </p>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingId = urlParams.get('id');
+
+        if (!bookingId) {
+            alert("No receipt found.");
+            window.location.href = 'my-bookings.html';
+            return;
+        }
+
+        const allBookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
+        const booking = allBookings.find(b => b.id === bookingId);
+
+        if (booking) {
+            document.getElementById('rId').innerText = booking.id;
+            document.getElementById('rName').innerText = booking.customer_name || booking.customer?.name || "Customer";
+            document.getElementById('rService').innerText = booking.service_name || booking.service;
+            document.getElementById('rDate').innerText = booking.date;
+            document.getElementById('rTime').innerText = booking.time;
+            document.getElementById('rTotal').innerText = (booking.price || booking.amount).toFixed(2);
+        } else {
+            alert("Record not found.");
+            window.location.href = 'my-bookings.html';
+        }
+    };
+</script>
+
+</body>
+</html>
