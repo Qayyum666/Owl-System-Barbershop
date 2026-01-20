@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - Owl Barbershop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Shared Styles from Bookings & My Bookings */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --light-gray: #f8f9fa;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light-gray);
+            color: #333;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 { font-family: 'Poppins', sans-serif; font-weight: 600; }
+
+        .container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+
+        /* Payment Layout */
+        .payment-wrapper {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Form Styling */
+        .payment-methods { display: flex; gap: 15px; margin-bottom: 25px; }
+        .method {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .method.active { border-color: var(--secondary-color); background: rgba(52, 152, 219, 0.05); }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+        }
+
+        .row { display: flex; gap: 15px; }
+        .row .form-group { flex: 1; }
+
+        /* Order Summary Styling */
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .total-row {
+            border-top: 2px solid #eee;
+            margin-top: 15px;
+            padding-top: 15px;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--secondary-color);
+        }
+
+        .btn-pay {
+            width: 100%;
+            background: var(--secondary-color);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: var(--transition);
+        }
+        .btn-pay:hover { background: #2980b9; transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .payment-wrapper { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="margin-bottom: 30px;"><i class="fas fa-lock text-secondary"></i> Secure Checkout</h1>
+    
+    <div class="payment-wrapper">
+        <div class="card">
+            <h3>Payment Method</h3>
+            <div class="payment-methods">
+                <div class="method active"><i class="fas fa-credit-card"></i><br>Card</div>
+                <div class="method"><i class="fab fa-apple-pay"></i><br>Apple Pay</div>
+                <div class="method"><i class="fab fa-google-pay"></i><br>Google Pay</div>
+            </div>
+
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label>Cardholder Name</label>
+                    <input type="text" class="form-control" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label>Card Number</label>
+                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000" required>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="text" class="form-control" placeholder="MM/YY" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="text" class="form-control" placeholder="123" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-pay" id="payBtn">Complete Payment</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Appointment Summary</h3>
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+            <div id="summaryContent">
+                <div class="summary-item">
+                    <span>Service:</span>
+                    <strong id="sumService">Classic Haircut</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Barber:</span>
+                    <strong id="sumBarber">Alex Rivers</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Date:</span>
+                    <strong id="sumDate">Oct 24, 2023</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Time:</span>
+                    <strong id="sumTime">10:00 AM</strong>
+                </div>
+                <div class="summary-item total-row">
+                    <span>Total Amount:</span>
+                    <span id="sumPrice">RM 35.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Fetch data from localStorage (Logic used in my-bookings.html)
+        const bookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
+        
+        // Get the most recent pending booking to pay for
+        const latestBooking = bookings[bookings.length - 1];
+
+        if (latestBooking) {
+            document.getElementById('sumService').textContent = latestBooking.service_name;
+            document.getElementById('sumBarber').textContent = latestBooking.barber_name;
+            document.getElementById('sumDate').textContent = latestBooking.date;
+            document.getElementById('sumTime').textContent = latestBooking.time;
+            document.getElementById('sumPrice').textContent = `RM ${latestBooking.price}`;
+        }
+
+        // 2. Handle Payment Submission
+        document.getElementById('paymentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const payBtn = document.getElementById('payBtn');
+            payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            payBtn.disabled = true;
+
+            // Simulate Network Delay
+            setTimeout(() => {
+                alert('Payment Successful! Your appointment is confirmed.');
+                
+                // Update booking status to confirmed if needed
+                if(latestBooking) {
+                    latestBooking.status = 'confirmed';
+                    localStorage.setItem('owl_bookings', JSON.stringify(bookings));
+                }
+                
+                window.location.href = 'my-bookings.html';
+            }, 2000);
+        });
+    });
+</script>
+
+</body>
+</html>
