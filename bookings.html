@@ -2263,39 +2263,33 @@
                 // Generate booking ID
                 const bookingId = 'OWL' + Date.now().toString().substr(-8);
                 
-                // Create booking object
+                // --- UPDATED BOOKING OBJECT FOR PAYMENTS ---
                 const booking = {
                     id: bookingId,
-                    service: selectedService.name,
+                    service_name: selectedService.name, // Renamed to match payment script
                     date: selectedDate,
                     time: selectedTime,
-                    barber: selectedBarber ? selectedBarber.name : 'Any available',
-                    customer: {
-                        name: name,
-                        phone: phone,
-                        email: email
-                    },
+                    barber_name: selectedBarber ? selectedBarber.name : 'Any available', // Renamed
+                    customer_name: name, // Flattened for easier validation in payments.html
+                    customer_phone: phone,
+                    customer_email: email,
                     specialRequests: requests,
-                    amount: selectedService.price,
-                    status: 'confirmed',
+                    price: selectedService.price, // Changed 'amount' to 'price' to match
+                    status: 'pending',           // SET TO PENDING (Requires payment)
                     bookingDate: new Date().toISOString(),
                     duration: selectedService.duration
                 };
                 
-                // Save to localStorage (simulating backend)
+                // Save to localStorage
                 let bookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
                 bookings.push(booking);
                 localStorage.setItem('owl_bookings', JSON.stringify(bookings));
                 
-                // Show success
-                showSuccess(booking);
+                // --- REDIRECT TO PAYMENTS INSTEAD OF SHOWSUCCESS ---
+                window.location.href = 'payments.html';
                 
-                // Reset button
-                confirmBtn.innerHTML = originalText;
-                confirmBtn.disabled = false;
-            }, 2000);
+            }, 1500);
         }
-
         // ===== SHOW SUCCESS =====
         function showSuccess(booking) {
             // Hide booking form
@@ -2401,4 +2395,5 @@
     </style>
 </body>
 </html>
+
 
