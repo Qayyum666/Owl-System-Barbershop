@@ -524,11 +524,6 @@
         </a>
     </li>
     <li>
-        <a href="help-staff.html" onclick="window.location.href='help-staff.html'; return false;">
-            <i class="fas fa-question-circle"></i> Help
-        </a>
-    </li>
-    <li>
         <a href="login.html" onclick="window.location.href='login.html'; return false;">
             <i class="fas fa-sign-out-alt"></i> Back
         </a>
@@ -546,7 +541,8 @@
                 </button>
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" id="searchOrders" placeholder="Search customer or order ID...">
+
                 </div>
             </div>
             <div class="header-right">
@@ -792,24 +788,30 @@
             requestAnimationFrame(updateValue);
         }
 
-        // Refresh dashboard data
-        function refreshDashboard() {
-            // Show loading state
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-            refreshBtn.disabled = true;
-            
-            // Simulate API call delay
-            setTimeout(() => {
-                updateStats();
-                
-                // Restore button state
-                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
-                refreshBtn.disabled = false;
-                
-                // Show notification
-                showNotification('Dashboard data refreshed successfully!', 'success');
-            }, 1500);
-        }
+function refreshDashboard() {
+    // Show loading state
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+    refreshBtn.disabled = true;
+
+    setTimeout(() => {
+        // Clear search input FIRST
+        searchOrders.value = '';
+
+        // Repopulate orders table and activity list
+        populateOrdersTable();
+        populateActivityList();
+
+        // Optionally update stats if you want
+        updateStats();
+
+        // Restore button state
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
+        refreshBtn.disabled = false;
+
+        // Show notification
+        showNotification('Dashboard reset to original state!', 'success');
+    }, 500);
+}
 
         // View order details
         function viewOrderDetails(orderId) {
@@ -906,11 +908,50 @@
             }, 5000);
         }
 
+// ===== Order Search =====
+const searchOrders = document.getElementById('searchOrders');
+
+searchOrders.addEventListener('input', function () {
+    const keyword = this.value.toLowerCase();
+    ordersTable.innerHTML = '';
+
+    orders
+        .filter(order =>
+            order.id.toLowerCase().includes(keyword) ||
+            order.customer.toLowerCase().includes(keyword)
+        )
+        .forEach(order => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${order.id}</td>
+                <td>${order.customer}</td>
+                <td>${order.date}</td>
+                <td>${order.amount}</td>
+                <td>
+                    <span class="status ${order.status}">
+                        ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-view" data-id="${order.id}">View</button>
+                </td>
+            `;
+            ordersTable.appendChild(row);
+        });
+
+    // Reattach view button events
+    document.querySelectorAll('.btn-view').forEach(button => {
+        button.addEventListener('click', function () {
+            viewOrderDetails(this.getAttribute('data-id'));
+        });
+    });
+});
+
+
         // Initialize dashboard when DOM is loaded
         document.addEventListener('DOMContentLoaded', initDashboard);
     </script>
 </body>
 </html>
-
 
 
