@@ -1,244 +1,198 @@
+That makes sense. If you want to keep the process completely manual—meaning the user finishes their booking as usual and then chooses when to go to the payments page from the navigation or "My Bookings"—you do not need to change a single line of code in bookings.html.
+
+You only need to update payments.html to be a "Search and Pay" tool.
+
+How this works:
+Bookings.html: Leave it exactly as it is (status stays "confirmed").
+
+My-Bookings.html: The user can see their Booking ID in their list.
+
+Payments.html: The user navigates here, pastes their Booking ID, and the system finds that specific record to process the payment.
+
+The Code for payments.html
+This version is designed to match your existing site style and focuses purely on verifying the Booking ID before allowing payment.
+
+HTML
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Payment - Owl Barbershop</title>
+    <title>Payment Portal - Owl Barbershop</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* Shared Styles from Bookings & My Bookings */
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --light-gray: #f8f9fa;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --light: #f8f9fa;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--light-gray);
-            color: #333;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             margin: 0;
-            line-height: 1.6;
         }
 
-        h1, h2, h3 { font-family: 'Poppins', sans-serif; font-weight: 600; }
-
-        .container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
-
-        /* Payment Layout */
-        .payment-wrapper {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 30px;
-        }
-
-        .card {
+        .payment-container {
             background: white;
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 450px;
         }
 
-        /* Form Styling */
-        .payment-methods { display: flex; gap: 15px; margin-bottom: 25px; }
-        .method {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #eee;
-            border-radius: var(--border-radius);
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .method.active { border-color: var(--secondary-color); background: rgba(52, 152, 219, 0.05); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header i { font-size: 3rem; color: var(--secondary); margin-bottom: 10px; }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
-        .form-control {
+        .search-section {
+            background: #f1f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+        input {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-size: 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-size: 1rem;
         }
 
-        .row { display: flex; gap: 15px; }
-        .row .form-group { flex: 1; }
-
-        /* Order Summary Styling */
-        .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; }
-        .total-row {
-            border-top: 2px solid #eee;
-            margin-top: 15px;
-            padding-top: 15px;
-            font-weight: 700;
-            font-size: 20px;
-            color: var(--secondary-color);
-        }
-
-        .btn-pay {
+        .btn {
             width: 100%;
-            background: var(--secondary-color);
-            color: white;
-            padding: 15px;
+            padding: 14px;
             border: none;
-            border-radius: var(--border-radius);
-            font-size: 18px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 20px;
-            transition: var(--transition);
+            transition: 0.3s;
         }
-        .btn-pay:hover { background: #2980b9; transform: translateY(-2px); }
 
-        @media (max-width: 768px) {
-            .payment-wrapper { grid-template-columns: 1fr; }
+        .btn-verify { background: var(--primary); color: white; }
+        .btn-pay { background: var(--success); color: white; display: none; margin-top: 20px; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        #detailsArea {
+            display: none;
+            border-top: 2px dashed #eee;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+
+        .summary-box {
+            background: #fdf9f0;
+            padding: 15px;
+            border-left: 4px solid var(--secondary);
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 style="margin-bottom: 30px;"><i class="fas fa-lock text-secondary"></i> Secure Checkout</h1>
-    
-    <div class="payment-wrapper">
-        <div class="card">
-            <h3>Payment Method</h3>
-            <div class="payment-methods">
-                <div class="method active"><i class="fas fa-credit-card"></i><br>Card</div>
-                <div class="method"><i class="fab fa-apple-pay"></i><br>Apple Pay</div>
-                <div class="method"><i class="fab fa-google-pay"></i><br>Google Pay</div>
-            </div>
+<div class="payment-container">
+    <div class="header">
+        <i class="fas fa-credit-card"></i>
+        <h2>Payment Portal</h2>
+        <p>Enter your Booking ID to proceed with payment</p>
+    </div>
 
-            <form id="paymentForm">
-                <div class="form-group">
-                    <label>Cardholder Name</label>
-                    <input type="text" class="form-control" placeholder="John Doe" required>
-                </div>
-                <div class="form-group">
-                    <label>Card Number</label>
-                    <input type="text" class="form-control" placeholder="0000 0000 0000 0000" required>
-                </div>
-                <div class="row">
-                    <div class="form-group">
-                        <label>Expiry Date</label>
-                        <input type="text" class="form-control" placeholder="MM/YY" required>
-                    </div>
-                    <div class="form-group">
-                        <label>CVV</label>
-                        <input type="text" class="form-control" placeholder="123" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn-pay" id="payBtn">Complete Payment</button>
-            </form>
+    <div class="search-section">
+        <label for="bookingIdInput">Booking Reference ID</label>
+        <input type="text" id="bookingIdInput" placeholder="e.g. OWL12345678">
+        <button class="btn btn-verify" onclick="verifyBooking()">Verify Booking ID</button>
+    </div>
+
+    <div id="detailsArea">
+        <div class="summary-box">
+            <p><strong>Customer:</strong> <span id="resName"></span></p>
+            <p><strong>Service:</strong> <span id="resService"></span></p>
+            <p style="font-size: 1.2rem; margin-top: 10px;">
+                <strong>Total Amount:</strong> <span style="color: var(--secondary);">RM <span id="resAmount"></span></span>
+            </p>
         </div>
 
-        <div class="card">
-            <h3>Appointment Summary</h3>
-            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-            <div id="summaryContent">
-                <div class="summary-item">
-                    <span>Service:</span>
-                    <strong id="sumService">Classic Haircut</strong>
-                </div>
-                <div class="summary-item">
-                    <span>Barber:</span>
-                    <strong id="sumBarber">Alex Rivers</strong>
-                </div>
-                <div class="summary-item">
-                    <span>Date:</span>
-                    <strong id="sumDate">Oct 24, 2023</strong>
-                </div>
-                <div class="summary-item">
-                    <span>Time:</span>
-                    <strong id="sumTime">10:00 AM</strong>
-                </div>
-                <div class="summary-item total-row">
-                    <span>Total Amount:</span>
-                    <span id="sumPrice">RM 35.00</span>
-                </div>
+        <label>Credit/Debit Card Number</label>
+        <input type="text" id="cardNum" placeholder="1234 5678 9101 1121">
+        
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 2;">
+                <label>Expiry Date</label>
+                <input type="text" placeholder="MM/YY">
+            </div>
+            <div style="flex: 1;">
+                <label>CVV</label>
+                <input type="password" placeholder="***">
             </div>
         </div>
+
+        <button class="btn btn-pay" id="payBtn" onclick="handlePayment()">Confirm & Pay Now</button>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // 1. Get logged-in user and all bookings
-        const currentUser = JSON.parse(localStorage.getItem('owl_user'));
+    let activeBooking = null;
+
+    function verifyBooking() {
+        const inputId = document.getElementById('bookingIdInput').value.trim();
         const allBookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
 
-        if (!currentUser) {
-            alert("Please login first to access payments.");
-            window.location.href = 'index.html';
+        // Find the booking by ID
+        activeBooking = allBookings.find(b => b.id === inputId);
+
+        if (activeBooking) {
+            // Check if already paid
+            if (activeBooking.payment_status === 'paid') {
+                alert("This booking has already been paid.");
+                return;
+            }
+
+            // Show Details
+            document.getElementById('resName').innerText = activeBooking.customer?.name || activeBooking.customer_name || "N/A";
+            document.getElementById('resService').innerText = activeBooking.service || activeBooking.service_name || "N/A";
+            document.getElementById('resAmount').innerText = activeBooking.amount || activeBooking.price || "0.00";
+
+            document.getElementById('detailsArea').style.display = 'block';
+            document.getElementById('payBtn').style.display = 'block';
+        } else {
+            alert("Booking ID not found. Please double-check your ID in 'My Bookings'.");
+            document.getElementById('detailsArea').style.display = 'none';
+        }
+    }
+
+    function handlePayment() {
+        const cardValue = document.getElementById('cardNum').value.replace(/\s/g, '');
+
+        // Card Length Validation (as requested)
+        if (cardValue.length < 12) {
+            alert("Card number invalid: Need at least 12 numbers");
             return;
         }
 
-        // 2. Filter bookings for THIS specific unique user that are 'pending'
-        // Matches the 'full_name' stored during login in bookings.html
-        const userBookings = allBookings.filter(b => 
-            b.customer_name === currentUser.full_name && b.status === 'pending'
-        );
+        // Update Payment Status in LocalStorage
+        const allBookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
+        const index = allBookings.findIndex(b => b.id === activeBooking.id);
 
-        // 3. Calculate Total Amount for this customer
-        const totalAmount = userBookings.reduce((sum, b) => sum + parseFloat(b.price), 0);
+        if (index !== -1) {
+            allBookings[index].payment_status = 'paid';
+            localStorage.setItem('owl_bookings', JSON.stringify(allBookings));
 
-        // Update the UI Summary
-        const sumContent = document.getElementById('summaryContent');
-        if (userBookings.length > 0) {
-            document.getElementById('sumService').textContent = `${userBookings.length} Pending Appointment(s)`;
-            document.getElementById('sumBarber').textContent = currentUser.full_name; 
-            document.getElementById('sumPrice').textContent = `RM ${totalAmount.toFixed(2)}`;
-        } else {
-            sumContent.innerHTML = "<p style='text-align:center; padding:20px;'>No pending payments found.</p>";
-            document.getElementById('payBtn').style.display = 'none';
+            alert("Payment Verified! Your receipt has been generated.");
+            window.location.href = 'my-bookings.html';
         }
-
-        // 4. Form Validation & Submission
-        document.getElementById('paymentForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const cardHolderInput = document.querySelector('input[placeholder="John Doe"]').value;
-            const cardNumberInput = document.querySelector('input[placeholder="0000 0000 0000 0000"]').value.replace(/\s/g, '');
-
-            // VALIDATION: Name must match Account Name
-            if (cardHolderInput.toLowerCase() !== currentUser.full_name.toLowerCase()) {
-                alert(`Cardholder name invalid. Please use your registered name: ${currentUser.full_name}`);
-                return;
-            }
-
-            // VALIDATION: Card number length
-            if (cardNumberInput.length < 12) {
-                alert("Card number invalid: Need at least 12 numbers");
-                return;
-            }
-
-            // Process Payment
-            const payBtn = document.getElementById('payBtn');
-            payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            payBtn.disabled = true;
-
-            setTimeout(() => {
-                // Update all 'pending' bookings for this user to 'confirmed'
-                const updatedBookings = allBookings.map(b => {
-                    if (b.customer_name === currentUser.full_name && b.status === 'pending') {
-                        return { ...b, status: 'confirmed' };
-                    }
-                    return b;
-                });
-
-                localStorage.setItem('owl_bookings', JSON.stringify(updatedBookings));
-                alert(`Payment Successful! RM ${totalAmount.toFixed(2)} processed for ${cardHolderInput}.`);
-                window.location.href = 'my-bookings.html';
-            }, 2000);
-        });
-    });
+    }
 </script>
 
 </body>
