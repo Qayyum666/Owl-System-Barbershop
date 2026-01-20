@@ -169,13 +169,15 @@
         const allBookings = JSON.parse(localStorage.getItem('owl_bookings')) || [];
         const index = allBookings.findIndex(b => b.id === activeBooking.id);
 
-        if (index !== -1) {
-            allBookings[index].payment_status = 'paid';
-            localStorage.setItem('owl_bookings', JSON.stringify(allBookings));
+        // Inside handlePayment() function, change the last line:
+if (index !== -1) {
+    allBookings[index].payment_status = 'paid';
+    localStorage.setItem('owl_bookings', JSON.stringify(allBookings));
 
-            alert("Payment Verified! Your receipt has been generated.");
-            window.location.href = 'my-bookings.html';
-        }
+    alert("Payment Verified! Your receipt has been generated.");
+    // CHANGE THIS LINE:
+    window.location.href = `receipt-payments.html?id=${activeBooking.id}`;
+}
     }
 </script>
 
