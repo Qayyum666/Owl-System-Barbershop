@@ -795,13 +795,8 @@
         </a>
     </li>
     <li>
-        <a href="help-staff.html" onclick="window.location.href='help-staff.html'; return false;">
-            <i class="fas fa-question-circle"></i> Help
-        </a>
-    </li>
-    <li>
         <a href="login.html" onclick="window.location.href='login.html'; return false;">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <i class="fas fa-sign-out-alt"></i> Back
         </a>
     </li>
 </ul>
@@ -1109,14 +1104,25 @@ function refreshData() {
                 <td>${person.joinDate}</td>
                 <td>${person.lastActive}</td>
                 <td>
-                    <div class="action-buttons-cell">
-                        <button class="btn-action view" title="View"><i class="fas fa-eye"></i></button>
-                        
-                    </div>
-                </td>
+    <div class="action-buttons-cell">
+        <button class="btn-action view" title="View" data-id="${person.id}">
+            <i class="fas fa-eye"></i>
+        </button>
+    </div>
+</td>
+
             `;
             staffsTable.appendChild(row);
         });
+
+// Attach event listeners to "View" buttons
+document.querySelectorAll('.btn-action.view').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const staffId = btn.getAttribute('data-id');
+        openUserModal(staffId);
+    });
+});
+
     }
 
     function updateUserStats() {
@@ -1158,9 +1164,49 @@ function refreshData() {
         updateUserStats();
     }
 
+function openUserModal(staffId) {
+    const selectedStaff = staff.find(s => s.id === parseInt(staffId));
+    if (!selectedStaff) return;
+
+    // Set modal title
+    modalTitle.innerText = `View Staff: ${selectedStaff.firstName} ${selectedStaff.lastName}`;
+    
+    // Fill form fields
+    document.getElementById('firstName').value = selectedStaff.firstName;
+    document.getElementById('lastName').value = selectedStaff.lastName;
+    document.getElementById('email').value = selectedStaff.email;
+    document.getElementById('role').value = selectedStaff.role;
+    document.getElementById('status').value = selectedStaff.status;
+    document.getElementById('phone').value = selectedStaff.phone || '';
+    document.getElementById('department').value = selectedStaff.department || '';
+    document.getElementById('notes').value = selectedStaff.notes || '';
+
+    // Make the form read-only for "View" mode
+    Array.from(userForm.elements).forEach(el => el.disabled = true);
+
+    // Hide Save button for viewing
+    saveUserBtn.style.display = 'none';
+
+    // Show the modal
+    userModal.classList.add('active');
+}
+
+
     function toggleSidebar() {
         sidebar.classList.toggle('active');
     }
+
+function closeUserModal() {
+    userModal.classList.remove('active');
+    // Reset form to editable for next add/edit
+    Array.from(userForm.elements).forEach(el => el.disabled = false);
+    saveUserBtn.style.display = 'inline-flex'; // Show the Save button again
+}
+
+// Close buttons
+closeModal.addEventListener('click', closeUserModal);
+cancelBtn.addEventListener('click', closeUserModal);
+
 
     function setupEventListeners() {
         menuToggle.addEventListener('click', toggleSidebar);
