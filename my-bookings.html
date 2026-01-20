@@ -529,6 +529,7 @@
                         </button>
                         <div class="dropdown-content">
                             <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                            <a href="payments.html">Payment</a>
                             <a href="my-bookings.html">My Bookings</a>
                             <a href="#" id="logoutBtn">Logout</a>
                         </div>
@@ -888,24 +889,87 @@
         }
 
         // Filter and display bookings
-        function filterAndDisplayBookings() {
-            let filteredBookings = [...allBookings];
+        function displayBookings(bookings) {
+            const tableBody = document.getElementById('bookingsTableBody');
+            const noBookingsMessage = document.getElementById('noBookingsMessage');
             
-            // Apply status filter
-            if (currentFilter !== 'all') {
-                if (currentFilter === 'upcoming') {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    
-                    filteredBookings = filteredBookings.filter(booking => {
-                        const bookingDate = new Date(booking.date);
-                        return (booking.status === 'confirmed' || booking.status === 'pending') && 
-                               bookingDate >= today;
-                    });
-                } else {
-                    filteredBookings = filteredBookings.filter(booking => booking.status === currentFilter);
-                }
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+            
+            if (bookings.length === 0) {
+                noBookingsMessage.style.display = 'block';
+                return;
             }
+            
+            noBookingsMessage.style.display = 'none';
+            
+            bookings.forEach(booking => {
+                const row = document.createElement('tr');
+                
+                // Format date and time
+                const dateObj = new Date(booking.date);
+                const formattedDate = dateObj.toLocaleDateString('en-US', {
+                    weekday: 'short', month: 'short', day: 'numeric'
+                });
+                
+                const [hours, minutes] = booking.time.split(':');
+                const period = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours % 12 || 12;
+                const formattedTime = `${displayHours}:${minutes} ${period}`;
+                
+                // Status Badge Logic
+                let statusBadge = `<span class="badge badge-${booking.status}">${booking.status.toUpperCase()}</span>`;
+                if (booking.payment_status === 'paid') {
+                    statusBadge += ' <span class="badge badge-confirmed" style="background: #e8f5e9; color: #2e7d32;"><i class="fas fa-check"></i> PAID</span>';
+                }
+
+                row.innerHTML = `
+                    <td>
+                        <strong>${booking.id}</strong> 
+                        <button onclick="copyBookingId('${booking.id}')" class="btn-icon" style="background:none; border:none; cursor:pointer; color:var(--secondary-color);" title="Copy ID">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </td>
+                    <td>${booking.service || booking.service_name}</td>
+                    <td>
+                        <div>${formattedDate}</div>
+                        <small>${formattedTime}</small>
+                    </td>
+                    <td>${booking.barber || booking.barber_name}</td>
+                    <td>${statusBadge}</td>
+                    <td><strong>RM ${(booking.amount || booking.price).toFixed(2)}</strong></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon btn-view" onclick="viewBookingDetails('${booking.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon btn-cancel" onclick="cancelBooking('${booking.id}')" title="Cancel Booking">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // ADD THE PAYMENT BUTTON AT THE BOTTOM
+            const actionDiv = document.createElement('div');
+            actionDiv.style.cssText = "padding: 20px; text-align: right; border-top: 1px solid #eee;";
+            actionDiv.innerHTML = `
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Have an unpaid booking? Copy the ID and proceed to payment.</p>
+                <a href="payments.html" class="btn btn-primary" style="background-color: #2ecc71;">
+                    <i class="fas fa-credit-card"></i> Proceed to Payment Portal
+                </a>
+            `;
+            tableBody.parentNode.parentNode.appendChild(actionDiv);
+        }
+
+        // NEW HELPER FUNCTION FOR COPYING
+        function copyBookingId(id) {
+            navigator.clipboard.writeText(id).then(() => {
+                alert('Booking ID ' + id + ' copied to clipboard!');
+            });
+        }
             
             // Apply sorting
             if (currentSort === 'newest') {
@@ -1113,5 +1177,6 @@
     </script>
 </body>
 </html>
+
 
 
