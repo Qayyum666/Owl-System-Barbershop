@@ -144,13 +144,8 @@ th{font-weight:600;color:#555;}
         </a>
     </li>
     <li>
-        <a href="help-staff.html" onclick="window.location.href='help-staff.html'; return false;">
-            <i class="fas fa-question-circle"></i> Help
-        </a>
-    </li>
-    <li>
         <a href="login.html" onclick="window.location.href='login.html'; return false;">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <i class="fas fa-sign-out-alt"></i> Back
         </a>
     </li>
 </ul>
@@ -206,27 +201,68 @@ th{font-weight:600;color:#555;}
 </main>
 
 <script>
-// Profile Edit Logic
+// ===== Profile Fields =====
 const editBtn = document.getElementById('editProfileBtn');
 const saveBtn = document.getElementById('saveProfileBtn');
-const inputs = ['profileFullName','profileUsername','profileEmail','profilePhone','profilePassword'];
 
-editBtn.addEventListener('click',()=>{
-    inputs.forEach(id=>document.getElementById(id).removeAttribute('readonly'));
-    editBtn.style.display='none';
-    saveBtn.style.display='inline-flex';
+const profileFields = {
+    fullName: document.getElementById('profileFullName'),
+    username: document.getElementById('profileUsername'),
+    email: document.getElementById('profileEmail'),
+    phone: document.getElementById('profilePhone'),
+    password: document.getElementById('profilePassword')
+};
+
+// ===== Load Profile From localStorage =====
+function loadProfile() {
+    const savedProfile = JSON.parse(localStorage.getItem('staffProfile'));
+
+    if (savedProfile) {
+        profileFields.fullName.value = savedProfile.fullName;
+        profileFields.username.value = savedProfile.username;
+        profileFields.email.value = savedProfile.email;
+        profileFields.phone.value = savedProfile.phone;
+        profileFields.password.value = savedProfile.password;
+    }
+}
+
+// ===== Save Profile To localStorage =====
+function saveProfile() {
+    const profileData = {
+        fullName: profileFields.fullName.value,
+        username: profileFields.username.value,
+        email: profileFields.email.value,
+        phone: profileFields.phone.value,
+        password: profileFields.password.value
+    };
+
+    localStorage.setItem('staffProfile', JSON.stringify(profileData));
+}
+
+// ===== Edit Button =====
+editBtn.addEventListener('click', () => {
+    Object.values(profileFields).forEach(input => input.removeAttribute('readonly'));
+    editBtn.style.display = 'none';
+    saveBtn.style.display = 'inline-flex';
 });
 
+// ===== Save Button =====
+saveBtn.addEventListener('click', () => {
+    Object.values(profileFields).forEach(input => input.setAttribute('readonly', true));
 
+    saveProfile();
 
-saveBtn.addEventListener('click',()=>{
-    inputs.forEach(id=>document.getElementById(id).setAttribute('readonly',''));
-    saveBtn.style.display='none';
-    editBtn.style.display='inline-flex';
-    const toast=document.getElementById('toast');
+    saveBtn.style.display = 'none';
+    editBtn.style.display = 'inline-flex';
+
+    const toast = document.getElementById('toast');
     toast.classList.add('toast-show');
-    setTimeout(()=>toast.classList.remove('toast-show'),2000);
+    setTimeout(() => toast.classList.remove('toast-show'), 2000);
 });
+
+// ===== Load Data On Page Load =====
+document.addEventListener('DOMContentLoaded', loadProfile);
 </script>
+
 </body>
 </html>
